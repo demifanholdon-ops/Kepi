@@ -1,5 +1,13 @@
 import { create } from "zustand";
 
+import type { UnitInspectInfo } from "@/lib/game/unitInspect";
+
+export type DomPieceInspect = {
+  info: UnitInspectInfo;
+  anchorX: number;
+  anchorY: number;
+};
+
 export type ToastVariant = "default" | "success" | "error";
 
 export type ToastMessage = {
@@ -26,8 +34,10 @@ export type HoveredUnit = {
 type UIStore = {
   debugOpen: boolean;
   setDebugOpen: (open: boolean) => void;
-  letterDrawerOpen: boolean;
-  setLetterDrawerOpen: (open: boolean) => void;
+  letterStripExpanded: boolean;
+  setLetterStripExpanded: (open: boolean) => void;
+  domPieceInspect: DomPieceInspect | null;
+  setDomPieceInspect: (inspect: DomPieceInspect | null) => void;
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
   hoveredUnit: HoveredUnit | null;
@@ -54,8 +64,11 @@ export const useUIStore = create<UIStore>((set, get) => ({
   debugOpen: false,
   setDebugOpen: (debugOpen) => set({ debugOpen }),
 
-  letterDrawerOpen: false,
-  setLetterDrawerOpen: (letterDrawerOpen) => set({ letterDrawerOpen }),
+  letterStripExpanded: false,
+  setLetterStripExpanded: (letterStripExpanded) => set({ letterStripExpanded }),
+
+  domPieceInspect: null,
+  setDomPieceInspect: (domPieceInspect) => set({ domPieceInspect }),
 
   settingsOpen: false,
   setSettingsOpen: (settingsOpen) => set({ settingsOpen }),

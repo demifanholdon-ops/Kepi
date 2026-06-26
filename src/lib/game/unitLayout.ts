@@ -76,9 +76,9 @@ export function tooltipAnchorFromSprite(
   sprite: UnitSpriteMetrics,
   canvasRect: DOMRect,
 ): { anchorX: number; anchorY: number } {
-  const spriteTop = sprite.feetY - sprite.cellSize * UNIT_SPRITE_HEIGHT_RATIO;
+  const headTop = sprite.feetY - sprite.cellSize * UNIT_SPRITE_HEIGHT_RATIO;
   return {
     anchorX: canvasRect.left + sprite.x,
-    anchorY: canvasRect.top + spriteTop - 8,
+    anchorY: canvasRect.top + headTop - 6,
   };
 }

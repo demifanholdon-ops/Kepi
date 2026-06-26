@@ -8,11 +8,13 @@ import { BattleOverlay, SettlementOverlay } from "./PhaseOverlays";
 import { EndingPhase } from "./EndingPhase";
 import { GameCanvas } from "./GameCanvas";
 import { GameDialogs } from "./GameDialogs";
-import { HudBar, LetterDrawer } from "./HudBar";
-import { BenchStrip, ShopStrip } from "./ShopStrip";
+import { HudBar } from "./HudBar";
+import { BottomDock } from "./BottomDock";
+import { BenchStrip } from "./ShopStrip";
 import { SettingsMenu } from "./SettingsMenu";
 import { ToastHost } from "./ToastHost";
 import { UnitInspectOverlay } from "./UnitInspectOverlay";
+import { PieceInspectTooltip } from "./PieceInspectTooltip";
 
 const PREP_TIMEOUT_MS = 30_000;
 
@@ -24,12 +26,17 @@ export function GameShell() {
   const moveSelected = useGameStore((state) => state.moveSelected);
   const setSelectedPiece = useGameStore((state) => state.setSelectedPiece);
   const pushToast = useUIStore((state) => state.pushToast);
+  const setDomPieceInspect = useUIStore((state) => state.setDomPieceInspect);
   const { phase, state } = snapshot;
 
   useEffect(() => {
     const saved = loadSnapshot();
     if (saved) replaceSnapshot(saved);
   }, [replaceSnapshot]);
+
+  useEffect(() => {
+    setDomPieceInspect(null);
+  }, [phase, setDomPieceInspect]);
 
   useEffect(() => {
     if (phase !== "prep") return;
@@ -76,12 +83,12 @@ export function GameShell() {
 
       <HudBar />
       <BenchStrip />
-      <ShopStrip />
+      <BottomDock />
       <BattleOverlay />
       <SettlementOverlay />
       <UnitInspectOverlay />
+      <PieceInspectTooltip />
 
-      <LetterDrawer />
       <SettingsMenu />
       <ToastHost />
       <GameDialogs />

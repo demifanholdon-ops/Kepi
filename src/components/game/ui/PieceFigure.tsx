@@ -15,6 +15,8 @@ type PieceFigureProps = {
   variant?: "shop" | "bench";
   className?: string;
   onClick?: () => void;
+  onInspectEnter?: (element: HTMLElement) => void;
+  onInspectLeave?: () => void;
   testId?: string;
   testPieceId?: string;
 };
@@ -28,6 +30,8 @@ export function PieceFigure({
   variant = "shop",
   className,
   onClick,
+  onInspectEnter,
+  onInspectLeave,
   testId,
   testPieceId,
 }: PieceFigureProps) {
@@ -86,6 +90,12 @@ export function PieceFigure({
         type="button"
         className={sharedClass}
         onClick={onClick}
+        onMouseEnter={
+          onInspectEnter
+            ? (event) => onInspectEnter(event.currentTarget)
+            : undefined
+        }
+        onMouseLeave={onInspectLeave}
         data-testid={testId}
         data-piece={type}
         data-piece-id={testPieceId}

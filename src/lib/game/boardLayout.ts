@@ -12,7 +12,7 @@ export const BOARD_ROWS = 5;
  */
 export const BOARD_ANCHOR = {
   centerXRatio: 0.5,
-  allyBottomRatio: 0.635,
+  allyBottomRatio: 0.56,
   boardWidthRatio: 0.44,
   boardHeightRatio: 0.34,
 } as const;

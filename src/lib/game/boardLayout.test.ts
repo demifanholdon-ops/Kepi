@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   ALLY_ROWS,
+  BOARD_ANCHOR,
   boardToPixel,
   computeBoardMetrics,
-  defaultEnemyPosition,
   ENEMY_ROWS,
   layoutEnemyPositions,
   NEUTRAL_ROWS,
@@ -11,11 +11,11 @@ import {
 } from "./boardLayout";
 
 describe("boardLayout zones", () => {
-  it("places ally rows near the bottom anchor", () => {
+  it("places ally front row at the configured bottom anchor", () => {
     const metrics = computeBoardMetrics(1280, 720);
     const frontRowY =
       metrics.originY + (ALLY_ROWS[ALLY_ROWS.length - 1]! + 0.5) * metrics.cellSize;
-    expect(frontRowY / metrics.height).toBeGreaterThan(0.58);
+    expect(frontRowY / metrics.height).toBeCloseTo(BOARD_ANCHOR.allyBottomRatio, 2);
   });
 
   it("keeps enemy rows above ally rows with neutral buffer", () => {
