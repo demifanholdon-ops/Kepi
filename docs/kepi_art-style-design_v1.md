@@ -16,9 +16,9 @@
 
 ### 2. 场景美术风格设定
 
-**主锚点**：《大鱼海棠》—— 东方奇幻水彩、写意土楼、暖色逆光、不写实不 3D。
+**主锚点**：《大鱼海棠》—— 东方奇幻水彩、写意土楼、暖色逆光、不写实不 3D。最终执行口径：场景与角色分开出图，角色 / 敌人统一为全身透明底正式立绘，主背景单独出横版大图。
 
-**土楼识别**：圆形土楼为绝对主视觉；同心圆回廊 + 通天天井 + 木质内廊，三阶段（破败 / 修缮 / 翻新）通过墙体、屋顶、灯火密度区分。
+**土楼识别**：圆形土楼为绝对主视觉；同心圆回廊 + 通天天井 + 木质内廊，三阶段（破败 / 修缮 / 翻新）通过墙体、屋顶、灯火密度区分。默认主背景以修缮态为基准。
 
 **色彩**：
 
@@ -26,9 +26,23 @@
 - 我军：蓝靛土布、温润人情
 - 敌军：青灰 + 朱红（官印 / 火 / 船红），冷硬压迫
 
-**镜头与构图**：棋盘横向宽画幅；立绘半身、角色居中、背景虚化；结局层可加强风浪与海面过场。
+**镜头与构图**：棋盘横向宽画幅；角色 / 敌人采用 3/4 正面全身立绘、透明底、角色居中；主背景预留上下 UI 安全区；结局层可加强风浪与海面过场。
 
-**明确不做**：写实 3D、西式史诗厚重（参考花木兰但非主风格）、Q 版治愈（桃源仅作结构简化参考）。
+**明确不做**：写实 3D、西式史诗厚重（参考花木兰但非主风格）、Q 版治愈（桃源仅作结构简化参考）、图内文字标签、卡面式大标题、粗黑外框。
+
+### 2.1 最终执行口径（2026-06-26 对齐）
+
+- 场景默认光源：左上方暖光，右下方略阴影。
+- 场景气氛：春末到初夏的清晨薄雾 / 晨光，保留海雾与潮气，但不把海面画满。
+- 主背景构图：圆形土楼 + 中央天井 + 明显回廊层次，棋盘感通过空间结构表达，不硬画格线。
+- 场景复杂度：中等复杂，有云雾、木廊、灯火、水井、晒场，但留出 UI 与字幕安全区。
+- 角色成品：正式设定图 + 海报级完成度，清晰线稿为主、轻厚涂辅助，略偏写实的动画比例。
+- 角色姿态：统一 3/4 正面、动作克制，族长更稳，风水先生更飘，水客更有行路感，守卫更前倾，农夫更扎实。
+- 角色底图：全身透明底，足底仅保留很淡的自然阴影，不加边框和文字。
+- 敌人气质：同一套笔触，但更冷硬、青灰 + 朱红、象征化更强，历史符号优先于夸张怪物化。
+- UI 图标：圆徽章 / 轻徽章边框 + 中心符号，扁平但带一点体积感，不做纯线稿或写实物件照。
+- 结局素材：三层结构，前景信纸与高光、中景船与人物、背景海雾与天光；情绪紧张但不做灾难片。
+- 文本处理：图片内不加角色名、费用、标题或说明，所有文本交给前端 UI。
 
 **参考锚点文件**（`docs/assets/`）：
 
@@ -321,11 +335,11 @@
 
 **中文版(即梦/可灵用):**
 
-> 《大鱼海棠》风格,温润写意的国风手绘水彩,2D动画赛璐璐上色,柔和的手绘笔触,暖色调氛围光,木质围屋室内的温暖逆光,质感细腻不写实不3D,人物面部柔和、眼神温润有神,线条干净流畅,整体气质宁静、有东方诗意和年代感,半身立绘,纯色或虚化背景,角色居中
+> 《大鱼海棠》风格,温润写意的国风手绘水彩,2D动画赛璐璐上色,柔和的手绘笔触,暖色调氛围光,木质围屋室内的温暖逆光,质感细腻不写实不3D,人物面部柔和、眼神温润有神,线条干净流畅,整体气质宁静、有东方诗意和年代感,正式设定图,全身透明底,3/4正面,角色居中,无文字无边框
 
 **英文版(MJ用):**
 
-> in the art style of Chinese animated film "Big Fish & Begonia", warm painterly 2D cel-shaded illustration, soft hand-drawn watercolor texture, gentle warm ambient lighting, traditional Hakka roundhouse wooden interior with warm backlight, serene poetic East-Asian mood, clean flowing linework, soft tender facial features with luminous eyes, character portrait half-body, simple blurred background, --ar 3:4 --niji 6
+> in the art style of Chinese animated film "Big Fish & Begonia", warm painterly 2D cel-shaded illustration, soft hand-drawn watercolor texture, gentle warm ambient lighting, traditional Hakka roundhouse wooden interior with warm backlight, serene poetic East-Asian mood, clean flowing linework, soft tender facial features with luminous eyes, full-body character portrait, transparent background, 3/4 front view, centered composition, no text, no frame, --ar 3:4 --niji 6
 >
 > **关键提示**:出图时把上面这段放最前面,接下来贴某一个角色的描述。`--niji 6` 是 MJ 里最接近这种日系/国风动画感的参数;即梦/可灵直接用中文版即可。
 

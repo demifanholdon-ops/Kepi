@@ -16,6 +16,22 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      // Watchable walkthrough: headed browser + slow-mo + video/trace.
+      // Run with: pnpm exec playwright test --project=demo --headed
+      // Manual takeover: PWPAUSE=1 pnpm exec playwright test --project=demo --headed --debug
+      name: "demo",
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1366, height: 900 },
+        headless: false,
+        launchOptions: {
+          slowMo: Number(process.env.PW_SLOWMO ?? 600),
+        },
+        video: "on",
+        trace: "on",
+      },
+    },
   ],
   webServer: {
     command: "pnpm dev",

@@ -2,7 +2,7 @@
 
 > 目标：把游戏静态素材的产出范围、优先级、规格、出图 prompt 与降级方案一次定清楚
 > 依据：[美术风格设定 v1](kepi_art-style-design_v1.md)
-> 更新：2026-06-25 — 合并角色 / 敌人出图 prompt 清单
+> 更新：2026-06-26 — 合并角色 / 敌人出图 prompt 清单；补充 UI 纹理 P0 清单（见 §2.3A）；根据最新讨论确认正式素材风格、构图、光源与尺寸
 
 ## 1. 素材总原则
 
@@ -20,6 +20,19 @@
 - 敌人：与我军同画风，但更冷硬、器物成精、青灰朱红压迫感更强
 - 土楼：圆形土楼是主识别点，必须一眼可见
 - 画面：不写实、不 3D，不做无关装饰堆叠
+
+### 1.2 最终视觉确认（2026-06-26）
+
+- 所有图片资源都按正式素材产出，不做占位图。
+- 场景与角色分开出图：主背景、结局背景、风浪背景单独成图；人物与敌人统一透明底。
+- 角色 / 敌人默认尺寸：`1024x1280`，全身透明底，3/4 正面，角色居中。
+- 场景默认尺寸：`1600x900`，横版大图，保留顶部和底部 UI 安全区。
+- UI 图标默认尺寸：`256x256`，统一圆徽章 / 轻徽章边框 + 中心符号。
+- 主背景默认态：修缮态；破败态与翻新态共用同一视角和构图模板。
+- 主场景气氛：春末到初夏的清晨薄雾 / 晨光，左上暖光、右下阴影，保留海雾与潮气但不铺满海面。
+- 整体风格：温润写意、清晰线稿、轻厚涂、水彩底色、正式设定图感，接近海报级完成度但不做宣传海报文案。
+- 结局气氛：风浪、散信、船影、手势高光分三层，不做灾难片。
+- 所有图片内不加字，不加人物名、费用、标题或解释。
 
 ## 2. P0 必做素材
 
@@ -73,11 +86,11 @@
 
 #### 中文版（即梦 / 可灵）
 
-> 《大鱼海棠》风格，温润写意的国风手绘水彩，2D 动画赛璐璐上色，柔和的手绘笔触，暖色调氛围光，木质围屋室内的温暖逆光，质感细腻不写实不 3D，人物面部柔和、眼神温润有神，线条干净流畅，整体气质宁静、有东方诗意和年代感，半身立绘，纯色或虚化背景，角色居中
+> 《大鱼海棠》风格，温润写意的国风手绘水彩，2D 动画赛璐璐上色，柔和的手绘笔触，暖色调氛围光，木质围屋室内的温暖逆光，质感细腻不写实不 3D，人物面部柔和、眼神温润有神，线条干净流畅，整体气质宁静、有东方诗意和年代感，正式设定图，全身透明底，3/4 正面，角色居中，无文字无边框
 
 #### 英文版（Midjourney）
 
-> in the art style of Chinese animated film "Big Fish & Begonia", warm painterly 2D cel-shaded illustration, soft hand-drawn watercolor texture, gentle warm ambient lighting, traditional Hakka roundhouse wooden interior with warm backlight, serene poetic East-Asian mood, clean flowing linework, soft tender facial features with luminous eyes, character portrait half-body, simple blurred background, --ar 3:4 --niji 6
+> in the art style of Chinese animated film "Big Fish & Begonia", warm painterly 2D cel-shaded illustration, soft hand-drawn watercolor texture, gentle warm ambient lighting, traditional Hakka roundhouse wooden interior with warm backlight, serene poetic East-Asian mood, clean flowing linework, soft tender facial features with luminous eyes, full-body character portrait, transparent background, 3/4 front view, centered composition, no text, no frame, --ar 3:4 --niji 6
 
 ### 2.2D 敌军额外异质感（6 敌共用）
 
@@ -140,6 +153,68 @@
 - [ ] 商店 / 刷新 / 升人口 / 返回图标
 - [ ] 结局页手势提示图标
 
+#### 2.3A UI 统一规则（2026-06-26）
+
+- 图标统一采用圆徽章或轻徽章边框，中心放核心符号，不做纯文字或写实物件照。
+- 图标默认尺寸为 `256x256`，透明底，便于前端缩放和拼接。
+- 主色以暖木褐、米宣纸、靛蓝和少量琥珀金为主。
+- 图标需要能独立识别，不能只靠按钮文字解释。
+- 图标与角色一样不加字，不加说明标签。
+
+### 2.3A UI 纹理与框架（P0 · Demo 阻塞）
+
+> UI 终稿开发的前置依赖。规范见 [UI 设计规范 v1](kepi_ui-design-spec_v1.md)。
+> 风格：暖木框 + 米宣纸 + 侨批信纸边；暖色黄昏；**低饱和、手工感、不要 glossy 3D**。
+> 导出：`PNG`（带 alpha）或 `WebP`；9-slice 资源需标注切分线。
+
+#### 2.3A.1 清单与路径
+
+| 状态 | 文件名 | 用途 | 建议尺寸 | 9-slice |
+|---|---|---|---|---|
+| [ ] | `public/images/ui/kepi_ui_frame-wood.png` | HUD 外框、面板、商店条容器 | 512×512 | 是（边 48–64px） |
+| [ ] | `public/images/ui/kepi_ui_paper-cream.png` | 面板内容区、抽屉、Tooltip 底 | 1024×1024 可平铺 | 否（seamless tile） |
+| [ ] | `public/images/ui/kepi_ui_paper-letter-edge.png` | 弹窗 / 侨批信纸装饰边 | 1024×256 或 corner 512×512 | corner 可选 |
+| [ ] | `public/images/ui/kepi_ui_button-wood-normal.png` | 主按钮（开战、购买、确认） | 256×96 | 是（边 24px） |
+| [ ] | `public/images/ui/kepi_ui_button-wood-hover.png` | 按钮 hover | 256×96 | 是 |
+| [ ] | `public/images/ui/kepi_ui_button-wood-disabled.png` | 按钮 disabled | 256×96 | 是 |
+| [ ] | `public/images/ui/kepi_ui_hud-tag.png` | 顶部 HUD 数值小标签 | 192×64 | 是（边 16px） |
+| [ ] | `public/images/ui/kepi_ui_shop-slot.png` | 商店棋子槽位底 | 128×128 | 是（边 16px） |
+| [ ] | `public/images/ui/kepi_ui_vignette-warm.png` | Canvas 边缘暖色暗角 | 1920×1080 | 否（全屏 overlay） |
+| [ ] | `public/images/ui/kepi_ui_divider-wood.png` | HUD / 商店条分隔线 | 512×16 | 横向 stretch |
+
+#### 2.3A.2 出图 Prompt（纹理）
+
+通用基底（纹理类 prompt **最前面**粘贴）：
+
+> 游戏 UI 素材，东方国风手工质感，暖色黄昏光，深木褐边框，米黄色宣纸底，低饱和，无 3D 光泽，无现代 flat UI，无英文无文字，无缝平铺或九宫格边框，高清 2D
+
+| 文件 | 追加描述 |
+|---|---|
+| `kepi_ui_frame-wood.png` | 老旧木框边框九宫格，转角有手工榫卯细节，内侧留白给纸面，外缘深褐 `#5c4033` |
+| `kepi_ui_paper-cream.png` | 米宣纸无缝平铺纹理，轻微纤维与岁月黄，无图案无文字 |
+| `kepi_ui_paper-letter-edge.png` | 侨批家书信纸边缘装饰，一侧有毛边或折痕，暖褐墨迹感，适合弹窗顶边 |
+| `kepi_ui_button-wood-normal.png` | 横向木牌按钮，圆角矩形，木纹清晰，可九宫格拉伸 |
+| `kepi_ui_button-wood-hover.png` | 同上，略亮，边缘琥珀暖光 |
+| `kepi_ui_button-wood-disabled.png` | 同上，去饱和灰褐，无高光 |
+| `kepi_ui_hud-tag.png` | 小木牌 / 纸签，可挂数值，窄长九宫格 |
+| `kepi_ui_shop-slot.png` | 方形浅木槽，用于放棋子图标，四角略内凹 |
+| `kepi_ui_vignette-warm.png` | 全屏透明底，四边暖琥珀暗角，中心透明，用于 16:9 |
+| `kepi_ui_divider-wood.png` | 细木梁分隔线，横向可拉伸 |
+
+#### 2.3A.3 交付检查
+
+- [ ] 每张图已放入 `public/images/ui/` 且命名符合 [文档命名规范 v1](kepi_document-conventions_v1.md)
+- [ ] 9-slice 资源附带切分说明（边距 px，可写在文件名同目录 `kepi_ui_9slice.json` 或本文档 PR 备注）
+- [ ] 1920×1080 投影预览无摩尔纹、无过细纹理
+- [ ] 与 `kepi_ui_frame-wood` 同套木色，避免各图色相漂移
+- [ ] 体积：单张 UI 纹理建议 < 300KB（vignette 可 < 500KB）
+
+#### 2.3A.4 降级（仅开发阻塞时临时使用）
+
+- 纹理未齐：**不得**以终稿 shadcn Card 上线 Demo
+- 可临时用 `docs/assets/` 下占位图本地引用，但路演前必须替换为 §2.3A.1 正式文件
+- CSS 渐变仅允许在 `/debug` 页，不进主对局页
+
 ### 2.4 结局素材
 
 - [ ] 真实侨批展示页背景
@@ -148,6 +223,13 @@
 - [ ] 子弹时间高亮素材
 - [ ] 客家话朗读的音频文件
 - [ ] 结局字幕用底纹 / 遮罩
+
+#### 2.4A 结局视觉口径
+
+- 风浪 / 海面更像海雾中的归乡时刻，不做纯灾难视觉。
+- 信纸散落、船影、手势高光采用前中后三层组织。
+- 结局信纸与字幕遮罩统一走暖米纸和深褐墨色。
+- 结局素材默认横版大图，方便和字幕、手势、信件叠层。
 
 ## 3. P1 可选素材
 
@@ -198,9 +280,11 @@
 ### 6.1 图片
 
 - 建议使用 `PNG` 或 `WebP`
-- 关键立绘尽量透明底
-- 棋盘和背景图优先横向大图
-- UI 图标可统一风格
+- 关键立绘尽量透明底，默认 `1024x1280`
+- 棋盘和背景图优先横向大图，默认 `1600x900`
+- UI 图标默认 `256x256`
+- 角色 / 敌人全身立绘，主背景单独出图，不混在同一张里
+- UI 图标采用统一圆徽章风格
 
 ### 6.2 音频
 
@@ -216,13 +300,19 @@ public/
     board/
     characters/
     enemies/
-    ui/
+    ui/              # kepi_ui_* 纹理、图标
     ending/
   audio/
     bgm/
     sfx/
     voice/
 ```
+
+UI 纹理优先见 §2.3A；图标见 §2.3。
+
+- `characters/` 与 `enemies/` 使用全身透明底正式立绘。
+- `board/` 与 `ending/` 使用横版大图。
+- `ui/` 同时容纳图标与纹理，统一前缀 `kepi_ui_*`。
 
 ## 7. 降级策略
 
@@ -235,5 +325,6 @@ public/
 ## 8. 与开发阶段的关系
 
 - Phase 0：素材目录、命名、出图 prompt 与风格锚点已定
+- Phase 4 前置：**§2.3A UI 纹理 P0 到位** → 再按 [UI 设计规范 v1](kepi_ui-design-spec_v1.md) 改布局与换肤
 - Phase 4：接入棋盘、UI、立绘、特效
 - Phase 5：接入结局与音频

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_SC } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const notoSansSC = Noto_Sans_SC({
@@ -19,8 +20,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className={`${notoSansSC.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+    <html lang="zh-CN" className={`${notoSansSC.variable} h-full`}>
+      <body className="h-full overflow-hidden font-sans">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }

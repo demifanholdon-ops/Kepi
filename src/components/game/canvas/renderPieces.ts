@@ -1,0 +1,281 @@
+import {
+  boardToPixel,
+  BOARD_COLS,
+  defaultAllyPosition,
+  defaultEnemyPosition,
+  isEnemyRow,
+} from "@/lib/game/boardLayout";
+import { ENEMY_VISUALS, PIECE_VISUALS } from "@/lib/game/assets";
+import type { Enemy, Piece } from "@/types";
+import { loadCachedImage, type ImageCache } from "@/lib/game/imageCache";
+import type { CanvasRenderState, CanvasTheme } from "./types";
+
+/** Full-body sprite height relative to cell size (1024×1280 portraits). */
+const SPRITE_HEIGHT_RATIO = 2.2;
+/** Feet anchor slightly below cell center so units stand on the courtyard floor. */
+const FEET_OFFSET_RATIO = 0.2;
+
+type UnitDrawJob = {
+  x: number;
+  y: number;
+  sortY: number;
+  label: string;
+  stroke: string;
+  portrait: string;
+  placeholder: string;
+  selected: boolean;
+  hpRatio: number;
+  showHpBar: boolean;
+  preview: boolean;
+};
+
+function loadPortrait(
+  cache: ImageCache,
+  primary: string,
+  fallback: string,
+  onLoad?: () => void,
+): HTMLImageElement | null {
+  const tryLoad = (src: string, allowFallback: boolean): HTMLImageElement | null => {
+    const img = loadCachedImage(cache, src, onLoad);
+    if (img) return img;
+    if (cache.get(src) === "error") {
+      if (allowFallback && src !== fallback) return tryLoad(fallback, false);
+      return null;
+    }
+    return null;
+  };
+
+  return tryLoad(primary, true);
+}
+
+function drawFootShadow(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  feetY: number,
+  cellSize: number,
+  alpha = 0.28,
+): void {
+  ctx.save();
+  ctx.fillStyle = `rgba(44, 36, 22, ${alpha})`;
+  ctx.beginPath();
+  ctx.ellipse(x, feetY + cellSize * 0.04, cellSize * 0.28, cellSize * 0.09, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawFootGlow(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  feetY: number,
+  cellSize: number,
+  stroke: string,
+  alpha = 0.5,
+): void {
+  ctx.save();
+  ctx.fillStyle = stroke;
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  ctx.ellipse(x, feetY, cellSize * 0.34, cellSize * 0.12, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = alpha * 0.44;
+  ctx.beginPath();
+  ctx.ellipse(x, feetY, cellSize * 0.52, cellSize * 0.18, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPreviewRing(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  feetY: number,
+  cellSize: number,
+  stroke: string,
+): void {
+  ctx.save();
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.45;
+  ctx.setLineDash([cellSize * 0.1, cellSize * 0.08]);
+  ctx.beginPath();
+  ctx.ellipse(x, feetY, cellSize * 0.36, cellSize * 0.13, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawHpBar(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  barY: number,
+  cellSize: number,
+  hpRatio: number,
+): void {
+  const barW = cellSize * 0.82;
+  const barH = Math.max(3, cellSize * 0.07);
+  const barX = x - barW / 2;
+  const clamped = Math.max(0, Math.min(1, hpRatio));
+
+  ctx.fillStyle = "rgba(44, 36, 22, 0.55)";
+  ctx.fillRect(barX, barY, barW, barH);
+  ctx.fillStyle = clamped > 0.35 ? "#52b788" : "#e63946";
+  ctx.fillRect(barX, barY, barW * clamped, barH);
+  ctx.strokeStyle = "rgba(245, 234, 214, 0.35)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(barX, barY, barW, barH);
+}
+
+function drawPlaceholder(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  feetY: number,
+  cellSize: number,
+  label: string,
+  stroke: string,
+): void {
+  const h = cellSize * 1.4;
+  const w = cellSize * 0.72;
+  const top = feetY - h;
+
+  ctx.save();
+  ctx.fillStyle = "rgba(245, 234, 214, 0.75)";
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(x - w / 2, top, w, h, cellSize * 0.08);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = "#2c2416";
+  ctx.font = `700 ${cellSize * 0.42}px var(--font-sans, sans-serif)`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, x, top + h * 0.46);
+  ctx.restore();
+}
+
+function drawUnit(
+  ctx: CanvasRenderingContext2D,
+  job: UnitDrawJob,
+  cellSize: number,
+  cache: ImageCache,
+  onLoad?: () => void,
+): void {
+  const {
+    x,
+    y,
+    label,
+    stroke,
+    portrait,
+    placeholder,
+    selected,
+    hpRatio,
+    showHpBar,
+    preview,
+  } = job;
+  const spriteHeight = cellSize * SPRITE_HEIGHT_RATIO;
+  const feetY = y + cellSize * FEET_OFFSET_RATIO;
+
+  drawFootShadow(ctx, x, feetY, cellSize, preview ? 0.18 : 0.28);
+  if (preview) {
+    drawPreviewRing(ctx, x, feetY, cellSize, stroke);
+  } else if (selected) {
+    drawFootGlow(ctx, x, feetY, cellSize, stroke);
+  }
+
+  const portraitImg = loadPortrait(cache, portrait, placeholder, onLoad);
+  ctx.save();
+  if (preview) {
+    ctx.globalAlpha = 0.8;
+  }
+
+  if (portraitImg) {
+    const aspect = portraitImg.naturalWidth / portraitImg.naturalHeight || 0.75;
+    const spriteWidth = spriteHeight * aspect;
+    const drawX = x - spriteWidth / 2;
+    const drawY = feetY - spriteHeight;
+
+    ctx.drawImage(portraitImg, drawX, drawY, spriteWidth, spriteHeight);
+
+    const barY = drawY - cellSize * 0.12;
+    if (showHpBar) {
+      ctx.globalAlpha = 1;
+      drawHpBar(ctx, x, barY, cellSize, hpRatio);
+    }
+    ctx.restore();
+    return;
+  }
+
+  drawPlaceholder(ctx, x, feetY, cellSize, label, stroke);
+  if (showHpBar) {
+    ctx.globalAlpha = 1;
+    drawHpBar(ctx, x, feetY - cellSize * 1.55, cellSize, hpRatio);
+  }
+  ctx.restore();
+}
+
+function allyPosition(piece: Piece, index: number) {
+  return piece.position ?? defaultAllyPosition(index);
+}
+
+function enemyPosition(enemy: Enemy, index: number, total: number) {
+  const pos = enemy.position;
+  if (pos && isEnemyRow(pos.y) && pos.x >= 0 && pos.x < BOARD_COLS) {
+    return pos;
+  }
+  return defaultEnemyPosition(index, total);
+}
+
+export function renderUnitsLayer(
+  ctx: CanvasRenderingContext2D,
+  state: CanvasRenderState,
+  theme: CanvasTheme,
+): void {
+  const { cellSize } = state.metrics;
+  const jobs: UnitDrawJob[] = [];
+
+  const showHpBar = state.phase === "battle" || state.phase === "settlement";
+  const enemyPreview = state.phase === "prep";
+
+  state.allies.forEach((piece, index) => {
+    const pos = allyPosition(piece, index);
+    const { x, y } = boardToPixel(pos, state.metrics);
+    const meta = PIECE_VISUALS[piece.type];
+    jobs.push({
+      x,
+      y,
+      sortY: y,
+      label: meta.shortLabel,
+      stroke: theme.allyStroke,
+      portrait: meta.portrait,
+      placeholder: meta.placeholder,
+      selected: state.selectedPieceId === piece.id,
+      hpRatio: piece.hp / piece.maxHp,
+      showHpBar,
+      preview: false,
+    });
+  });
+
+  state.enemies.forEach((enemy, index) => {
+    const pos = enemyPosition(enemy, index, state.enemies.length);
+    const { x, y } = boardToPixel(pos, state.metrics);
+    const meta = ENEMY_VISUALS[enemy.type];
+    jobs.push({
+      x,
+      y,
+      sortY: y,
+      label: meta.shortLabel,
+      stroke: theme.enemyStroke,
+      portrait: meta.portrait,
+      placeholder: meta.placeholder,
+      selected: false,
+      hpRatio: enemy.hp / enemy.maxHp,
+      showHpBar: showHpBar && !enemyPreview,
+      preview: enemyPreview,
+    });
+  });
+
+  jobs.sort((a, b) => a.sortY - b.sortY);
+
+  for (const job of jobs) {
+    drawUnit(ctx, job, cellSize, state.portraitCache, state.requestRepaint);
+  }
+}

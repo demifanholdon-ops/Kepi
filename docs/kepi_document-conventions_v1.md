@@ -58,9 +58,9 @@ public/images/<类别>/<kepi_主体>_<变体>.<ext>
 
 示例：
 
-- `public/images/characters/kepi_farmer_star1.png`
+- `public/images/characters/kepi_farmer.png`
 - `public/images/enemies/kepi_qianhai-stele.png`
-- `public/images/board/kepi_tulou-stage2.png`
+- `public/images/board/kepi_tulou-stage2-repair.png`
 
 ### 3.2 音频
 

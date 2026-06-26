@@ -5,34 +5,24 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --color-kepi-scene: var(--kepi-scene);
+  --color-kepi-panel: var(--kepi-panel);
+  --color-kepi-ink: var(--kepi-ink);
+  --color-kepi-ink-muted: var(--kepi-ink-muted);
+  --color-kepi-accent: var(--kepi-accent);
+  --color-kepi-accent-soft: var(--kepi-accent-soft);
+  --color-kepi-gold: var(--kepi-gold);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
@@ -43,88 +33,352 @@
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  /* Kepi warm dusk palette */
+  --kepi-scene: #2c2416;
+  --kepi-scene-glow: rgba(232, 168, 73, 0.14);
+  --kepi-panel: rgba(245, 234, 214, 0.92);
+  --kepi-panel-border: #5c4033;
+  --kepi-ink: #2c2416;
+  --kepi-ink-muted: #6b5b4f;
+  --kepi-accent: #4a6fa5;
+  --kepi-accent-soft: rgba(142, 202, 230, 0.22);
+  --kepi-gold: #d4a574;
+  --kepi-danger: #7b4b4b;
+  --kepi-enemy: #c1121f;
+  --kepi-wood-light: #8b6914;
+  --kepi-wood-mid: #6b4f2a;
+  --kepi-wood-dark: #3d2e1f;
+  --kepi-paper-top: #f5ead6;
+  --kepi-paper-bottom: #e8dcc4;
+  --kepi-ally-fill: #4a6fa5;
+  --kepi-ally-stroke: #8ecae6;
+  --kepi-enemy-fill: #7b4b4b;
+  --kepi-enemy-stroke: #c1121f;
+  --kepi-tulou-glow-ruined: #6b5b4f;
+  --kepi-tulou-glow-repairing: #d4a574;
+  --kepi-tulou-glow-renewed: #f6c177;
+  --kepi-sky-top: #4a3728;
+  --kepi-sky-bottom: #3d2e1f;
+  --kepi-battle-glow: rgba(193, 18, 31, 0.24);
+  --kepi-board-cell: rgba(255, 255, 255, 0.08);
+  --kepi-board-cell-active: rgba(142, 202, 230, 0.22);
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Map shadcn tokens to warm game theme */
+  --background: #2c2416;
+  --foreground: #f5ead6;
+  --card: rgba(245, 234, 214, 0.92);
+  --card-foreground: #2c2416;
+  --popover: #f5ead6;
+  --popover-foreground: #2c2416;
+  --primary: #6b4f2a;
+  --primary-foreground: #f5ead6;
+  --muted: rgba(107, 91, 79, 0.18);
+  --muted-foreground: #a89888;
+  --border: rgba(92, 64, 51, 0.55);
+  --input: rgba(92, 64, 51, 0.4);
+  --ring: rgba(212, 165, 116, 0.5);
+  --destructive: #9b2c2c;
+  --radius: 0.5rem;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
+
   html {
     @apply font-sans;
+  }
+
+  body {
+    @apply bg-kepi-scene text-foreground antialiased;
+  }
+}
+
+@layer components {
+  /* Paper surface — PNG rice paper tile */
+  .kepi-paper {
+    color: var(--kepi-ink);
+    background-color: var(--kepi-paper-top);
+    background-image: url("/images/ui/kepi_ui_paper-cream.png");
+    background-size: 256px 256px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 248, 235, 0.35),
+      inset 0 -1px 0 rgba(92, 64, 51, 0.06);
+  }
+
+  /* Wood frame — 9-slice PNG */
+  .kepi-wood-frame {
+    border-style: solid;
+    border-width: 14px;
+    border-color: transparent;
+    border-image-source: url("/images/ui/kepi_ui_frame-wood.png");
+    border-image-slice: 80 fill;
+    border-image-width: 14px;
+    border-image-repeat: stretch;
+    filter: drop-shadow(0 6px 28px rgba(44, 36, 22, 0.45));
+  }
+
+  .kepi-wood-frame-inner {
+    margin: -4px;
+    overflow: hidden;
+  }
+
+  /* Wood button — 9-slice PNG states */
+  .kepi-wood-btn {
+    color: #f5ead6;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    border-style: solid;
+    border-width: 10px 20px;
+    border-color: transparent;
+    border-image-source: url("/images/ui/kepi_ui_button-wood-normal.png");
+    border-image-slice: 28 56 fill;
+    border-image-width: 10px 20px;
+    border-image-repeat: stretch;
+    background: transparent;
+    transition:
+      border-image-source 0.12s ease,
+      transform 0.1s ease,
+      filter 0.12s ease;
+  }
+
+  .kepi-wood-btn:hover:not(:disabled) {
+    border-image-source: url("/images/ui/kepi_ui_button-wood-hover.png");
+    filter: brightness(1.04);
+  }
+
+  .kepi-wood-btn:active:not(:disabled) {
+    transform: translateY(1px);
+    filter: brightness(0.96);
+  }
+
+  .kepi-wood-btn:disabled {
+    border-image-source: url("/images/ui/kepi_ui_button-wood-disabled.png");
+    color: var(--kepi-ink-muted);
+    cursor: not-allowed;
+    filter: none;
+  }
+
+  .kepi-wood-btn-primary {
+    color: #f5ead6;
+    filter: drop-shadow(0 0 6px rgba(74, 111, 165, 0.45));
+  }
+
+  .kepi-wood-btn-primary:hover:not(:disabled) {
+    filter: brightness(1.06) drop-shadow(0 0 8px rgba(74, 111, 165, 0.55));
+  }
+
+  .kepi-wood-btn-danger {
+    color: #fde8e8;
+    filter: drop-shadow(0 0 4px rgba(155, 44, 44, 0.35));
+  }
+
+  /* HUD metric tag — stretchable PNG (native 192×64, stretched taller for two-line content) */
+  .kepi-hud-tag {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 7rem;
+    height: 5.5rem;
+    min-height: 5.5rem;
+    padding: 1.0625rem 1rem;
+    background: url("/images/ui/kepi_ui_hud-tag.png") center / 100% 100%
+      no-repeat;
+    filter: drop-shadow(0 2px 8px rgba(44, 36, 22, 0.3));
+  }
+
+  .kepi-hud-tag-inner {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+
+  .kepi-hud-tag-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.1875rem;
+    line-height: 1;
+  }
+
+  .kepi-hud-label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .kepi-hud-value-indented {
+    padding-left: calc(18px + 0.25rem);
+  }
+
+  .kepi-hud-label {
+    font-size: 0.625rem;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    color: var(--kepi-ink-muted);
+  }
+
+  .kepi-hud-value {
+    font-size: 0.875rem;
+    line-height: 1;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--kepi-ink);
+  }
+
+  .kepi-hud-value-highlight {
+    color: var(--kepi-accent);
+  }
+
+  /* Shop slot — 9-slice PNG */
+  .kepi-shop-slot {
+    border-style: solid;
+    border-width: 10px;
+    border-color: transparent;
+    border-image-source: url("/images/ui/kepi_ui_shop-slot.png");
+    border-image-slice: 32 fill;
+    border-image-width: 10px;
+    border-image-repeat: stretch;
+    transition: transform 0.12s ease;
+  }
+
+  .kepi-shop-slot-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    margin: -2px;
+    min-width: 4.25rem;
+    min-height: 4.25rem;
+    padding: 0.375rem;
+  }
+
+  /* Scene vignette over canvas */
+  .kepi-scene-vignette {
+    position: relative;
+  }
+
+  .kepi-scene-vignette::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: url("/images/ui/kepi_ui_vignette-warm.png") center / cover
+      no-repeat;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+  }
+
+  .kepi-scene-vignette::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(
+      180deg,
+      rgba(44, 36, 22, 0.25) 0%,
+      transparent 10%,
+      transparent 82%,
+      rgba(44, 36, 22, 0.4) 100%
+    );
+  }
+
+  /* Warm ambient glow */
+  .kepi-scene-glow {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(
+      ellipse 60% 50% at 50% 40%,
+      var(--kepi-scene-glow) 0%,
+      transparent 70%
+    );
+  }
+
+  /* Ending layer — warm sea + ending art, aligned with main scene */
+  .kepi-ending-scene {
+    background-color: var(--kepi-scene);
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(44, 36, 22, 0.72) 0%,
+        rgba(61, 46, 31, 0.55) 45%,
+        rgba(74, 55, 40, 0.78) 100%
+      ),
+      url("/images/ending/kepi_wind-wave-background.png"),
+      url("/images/ending/kepi_ending-background.png");
+    background-size: cover, cover, cover;
+    background-position: center, center bottom, center;
+    background-repeat: no-repeat;
+  }
+
+  .kepi-ending-vignette {
+    z-index: 1;
+    background: url("/images/ui/kepi_ui_vignette-warm.png") center / cover
+      no-repeat;
+    opacity: 0.42;
+    mix-blend-mode: multiply;
+  }
+
+  @keyframes kepi-shop-flash {
+    0% {
+      filter: brightness(1);
+    }
+    35% {
+      filter: brightness(1.18) saturate(1.08);
+    }
+    100% {
+      filter: brightness(1);
+    }
+  }
+
+  .kepi-shop-refresh-flash {
+    animation: kepi-shop-flash 520ms ease-out;
+  }
+
+  /* Letter drawer / modal paper edge */
+  .kepi-letter-edge {
+    background-image:
+      url("/images/ui/kepi_ui_paper-letter-edge.png"),
+      url("/images/ui/kepi_ui_paper-cream.png");
+    background-position:
+      top center,
+      center;
+    background-size:
+      100% auto,
+      256px 256px;
+    background-repeat: no-repeat, repeat;
+    padding-top: 1.25rem;
+  }
+
+  /* Toast paper slip */
+  .kepi-toast {
+    filter: drop-shadow(0 4px 16px rgba(44, 36, 22, 0.35));
+  }
+
+  .kepi-toast-inner {
+    margin: -2px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--kepi-ink);
+  }
+
+  /* Divider */
+  .kepi-wood-divider {
+    height: 8px;
+    background: url("/images/ui/kepi_ui_divider-wood.png") center / contain
+      no-repeat;
+    opacity: 0.85;
   }
 }
