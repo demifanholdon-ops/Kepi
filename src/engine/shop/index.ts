@@ -146,6 +146,14 @@ export function movePiece(
   };
 }
 
+/** New prep phase: all owned pieces return to bench for redeployment. */
+export function recallBoardToBench(snapshot: GameSnapshot): GameSnapshot {
+  return {
+    ...snapshot,
+    board: snapshot.board.map((piece) => ({ ...piece, position: null })),
+  };
+}
+
 export function refreshShop(snapshot: GameSnapshot): GameSnapshot {
   if (snapshot.state.gold < snapshot.shop.refreshCost) return snapshot;
 

@@ -14,6 +14,7 @@ import {
   movePiece,
   refreshShop,
   rollShop,
+  recallBoardToBench,
   sellPiece,
 } from "./shop";
 import { canApplyAction, cloneSnapshot, transitionPhase } from "./stateMachine";
@@ -115,6 +116,7 @@ export function reduceGameState(
       }
       next = applyRoundIncome(next);
       next = rollShop(next);
+      next = recallBoardToBench(next);
       return transitionPhase(next, "prep");
     }
 
@@ -137,6 +139,7 @@ export {
   movePiece,
   refreshShop,
   rollShop,
+  recallBoardToBench,
   resetPieceCounter,
   sellPiece,
 } from "./shop";

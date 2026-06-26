@@ -87,7 +87,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   advanceStage: () => {
-    apply(set, get, { type: "ADVANCE_STAGE" });
+    const ok = apply(set, get, { type: "ADVANCE_STAGE" });
+    if (ok && get().snapshot.phase === "prep") {
+      useUIStore.getState().setDomPieceInspect(null);
+      set({ selectedPieceId: null });
+    }
   },
 
   resetGame: () => {

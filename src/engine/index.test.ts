@@ -30,6 +30,26 @@ describe("engine", () => {
     expect(snapshot.state.stage).toBe(2);
   });
 
+  it("recalls placed pieces to bench when advancing to next prep", () => {
+    resetPieceCounter(0);
+    let snapshot = createInitialSnapshot();
+    snapshot = reduceGameState(snapshot, { type: "BUY_PIECE", pieceType: "farmer" });
+    const pieceId = snapshot.board[0]!.id;
+    snapshot = reduceGameState(snapshot, {
+      type: "MOVE_PIECE",
+      pieceId,
+      position: { x: 3, y: 4 },
+    });
+    expect(snapshot.board[0]?.position).toEqual({ x: 3, y: 4 });
+
+    snapshot = reduceGameState(snapshot, { type: "START_BATTLE" });
+    snapshot = reduceGameState(snapshot, { type: "END_BATTLE" });
+    snapshot = reduceGameState(snapshot, { type: "ADVANCE_STAGE" });
+
+    expect(snapshot.phase).toBe("prep");
+    expect(snapshot.board[0]?.position).toBeNull();
+  });
+
   it("ends game when survival reaches zero", () => {
     resetPieceCounter(0);
     let snapshot = createInitialSnapshot();
