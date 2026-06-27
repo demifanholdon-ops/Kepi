@@ -1,12 +1,12 @@
 "use client";
 
-import { spawnEnemiesForStage } from "@/engine/battle";
 import {
   clampInspectAnchor,
   inspectCardTransform,
   InspectCard,
 } from "@/components/game/InspectCard";
 import { inspectAlly, inspectEnemy } from "@/lib/game/unitInspect";
+import { combatUnitsFromSnapshot } from "@/lib/game/combatUnits";
 import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
 
@@ -17,22 +17,19 @@ export function UnitInspectOverlay() {
 
   if (!hoveredUnit) return null;
 
-  const { phase, board, state } = snapshot;
+  const { phase } = snapshot;
 
   if (phase === "prep" && selectedPieceId && hoveredUnit.side === "ally") {
     return null;
   }
 
+  const { allies, enemies } = combatUnitsFromSnapshot(snapshot);
   let info = null;
 
   if (hoveredUnit.side === "ally") {
-    const piece = board.find((entry) => entry.id === hoveredUnit.unitId);
+    const piece = allies.find((entry) => entry.id === hoveredUnit.unitId);
     if (piece) info = inspectAlly(piece, phase);
   } else {
-    const enemies =
-      phase === "prep" || phase === "battle" || phase === "settlement"
-        ? spawnEnemiesForStage(state.stage)
-        : [];
     const enemy = enemies.find((entry) => entry.id === hoveredUnit.unitId);
     if (enemy) info = inspectEnemy(enemy, phase);
   }

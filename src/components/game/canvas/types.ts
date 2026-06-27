@@ -2,7 +2,8 @@ import type { BattleEvent, BoardPosition, Enemy, Piece, ScenePhase } from "@/typ
 import type { BoardMetrics } from "@/lib/game/boardLayout";
 import type { TulouVisualStage } from "@/lib/game/assets";
 import type { ImageCache } from "@/lib/game/imageCache";
-import type { TransitionBurst } from "@/lib/game/tulouBackground";
+import type { AttackSlash } from "@/lib/game/battleAnim";
+import type { HoveredUnit } from "@/store/uiStore";
 import type { PrepFx } from "@/store/fxStore";
 
 export type CanvasLayerId = "background" | "board" | "units" | "effects";
@@ -16,8 +17,6 @@ export type EffectFlash = {
   color: string;
   kind?: "attack" | "repair";
 };
-
-import type { HoveredUnit } from "@/store/uiStore";
 
 export type CanvasHoverTarget = Pick<HoveredUnit, "side" | "unitId">;
 
@@ -34,8 +33,10 @@ export type CanvasRenderState = {
   battleTick: number;
   lastBattleWon: boolean | null;
   effects: EffectFlash[];
+  attackSlashes: AttackSlash[];
+  unitMotionPx: Record<string, { dx: number; dy: number }>;
+  hitFlash: Record<string, number>;
   timeMs: number;
-  transitionBurst: TransitionBurst | null;
   prepFx: PrepFx[];
   hoveredUnit: CanvasHoverTarget | null;
   imageCache: ImageCache;
@@ -81,3 +82,5 @@ export function readCanvasTheme(stage: TulouVisualStage): CanvasTheme {
     sceneFallback: read("--kepi-scene", "#3d2e1f"),
   };
 }
+
+export type { AttackSlash };

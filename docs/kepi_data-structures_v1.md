@@ -13,7 +13,7 @@
 | survival | int | 2 | 0–2，输一关-1，0=出局 | 寨子存续度（生存线） |
 | kebi | int | 0 | 0–5，赢一关+1 | 客批数（胜场计数，达5可归乡） |
 | kebiThreshold | int | 5 | 固定 | 通关阈值 |
-| sangzi | int | 0 | ≥0 | 桑梓值（修家园资源，水客随信收回） |
+| sangzi | int | 0 | ≥0 | 桑梓值（胜利客批随信带回的修家园资源；Demo 口径下同一结算中通常被乡贤消耗回 0） |
 | homeRepair | int | 0 | 0–100，只升不降 | 家园修复值（温情线，驱动土楼三阶段） |
 | gold | int | 10 | ≥0 | 金币 |
 | population | int | 3 | 3–6 | 人口（上场棋位上限） |
@@ -24,6 +24,23 @@
 **派生/判定逻辑：**
 - 土楼视觉态 = homeRepair<34 ? 破败 : homeRepair<67 ? 修缮 : 翻新
 - 胜负判定见 §6 状态机
+
+---
+
+## 1A. 结算摘要 SettlementSummary
+
+> 用于胜利结算过场和摘要卡。引擎只记录事实；过场层根据这些字段播放"水客送信→桑梓显现→乡贤修楼→土楼变化"。
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| won | boolean | 本关是否胜利 |
+| kebiGained | int | 本关新增客批数；胜利固定为 1，失败为 0 |
+| sangziGained | int | 本关随信带回的桑梓；Demo 口径胜利为 1 |
+| sangziConsumed | int | 本关被乡贤用于修楼的桑梓；通常等于 sangziGained |
+| homeRepairBefore | int | 结算前家园修复值 |
+| homeRepairGained | int | 本关家园修复提升值；建议每份桑梓约 +15~17 |
+| homeRepairAfter | int | 结算后家园修复值，封顶 100 |
+| survivalLost | int | 本关损失存续度；失败为 1，胜利为 0 |
 
 ---
 
@@ -67,9 +84,9 @@
 | slot | enum | 固定后勤槽位，不占 population |
 
 **逻辑（非数值棋子，是功能位）：**
-- 水客：每场胜利 → kebi+1；信附带的 sangzi 随信收回（累加到 GameState.sangzi）。纯运信，不消耗、不建设。
-- 乡贤：每回合 → 消耗 sangzi 转 homeRepair（建议每赢一关推进 homeRepair +15~17%，3关跨一档）。纯建设。
-- 二者皆有动效+音效反馈（收信"咔"、修楼敲击、跨阶段高亮）。
+- 水客：每场胜利 → kebi+1；信附带的 sangzi 随信收回。纯运信，不消耗、不建设。
+- 乡贤：同一胜利结算过场中 → 消耗本关 sangzi 转 homeRepair（建议每赢一关推进 homeRepair +15~17%，3关跨一档）。纯建设。
+- 二者皆通过胜利结算过场表现：海上送信、交信、桑梓显现、修楼、跨阶段高亮。
 
 ---
 
@@ -104,7 +121,11 @@
 每关结束：
   if 本关胜:
      kebi += 1
-     sangzi += 收信附带量（乡贤回合内转 homeRepair）
+     sangzi += 1
+     if 乡贤在场:
+        consumed = sangzi
+        sangzi -= consumed
+        homeRepair = min(100, homeRepair + consumed * 16)
      winStreak++; loseStreak=0
   else 本关负:
      survival -= 1
@@ -125,6 +146,7 @@
 - 当前 N=1：survival=2、threshold=5 → 咬合 ✓。
 - 客批只由胜场+1产生，任何加成不得改 kebi（只能改 sangzi）。
 - homeRepair 只升不降（取历史最高，战败不回退）。
+- sangzi 是修复过程资源，不是第二套货币；若乡贤在场，胜利结算后余额通常为 0，结算摘要负责展示"+1 → 已修缮"。
 
 ---
 

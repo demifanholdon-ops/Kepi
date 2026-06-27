@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  resolveTransitionOverlay,
   resolveTulouBackgroundLayers,
-  transitionBurstForCrossing,
+  tulouRepairStageForValue,
 } from "./tulouBackground";
 
 describe("resolveTulouBackgroundLayers", () => {
@@ -13,38 +12,31 @@ describe("resolveTulouBackgroundLayers", () => {
     expect(layers[0]?.src).toContain("stage1-broken");
   });
 
-  it("crossfades near the first threshold", () => {
-    const layers = resolveTulouBackgroundLayers(34);
-    expect(layers).toHaveLength(2);
-    const total = layers.reduce((sum, layer) => sum + layer.alpha, 0);
-    expect(total).toBeCloseTo(1, 5);
+  it("returns a single direct replacement layer at thresholds", () => {
+    const layers = resolveTulouBackgroundLayers(32);
+    expect(layers).toHaveLength(1);
+    expect(layers[0]?.alpha).toBe(1);
+    expect(layers[0]?.src).toContain("stage3-gate");
   });
 
   it("returns renewed stage at high repair", () => {
     const layers = resolveTulouBackgroundLayers(90);
     expect(layers).toHaveLength(1);
-    expect(layers[0]?.src).toContain("stage3-renewed");
+    expect(layers[0]?.src).toContain("stage6-renewed");
   });
 });
 
-describe("resolveTransitionOverlay", () => {
-  it("peaks at threshold 34", () => {
-    const overlay = resolveTransitionOverlay(34);
-    expect(overlay).not.toBeNull();
-    expect(overlay!.alpha).toBeGreaterThan(0.3);
-  });
-
-  it("is absent far from thresholds", () => {
-    expect(resolveTransitionOverlay(50)).toBeNull();
-  });
-});
-
-describe("transitionBurstForCrossing", () => {
-  it("detects crossing into repairing", () => {
-    expect(transitionBurstForCrossing(30, 36)).toContain("transition-1-2");
-  });
-
-  it("ignores changes within the same band", () => {
-    expect(transitionBurstForCrossing(40, 45)).toBeNull();
+describe("tulouRepairStageForValue", () => {
+  it("maps repair values to six board stages", () => {
+    expect(tulouRepairStageForValue(0).src).toBe(
+      "/images/board/kepi_tulou-stage1-broken.png",
+    );
+    expect(tulouRepairStageForValue(0).id).toBe("stage1");
+    expect(tulouRepairStageForValue(16).id).toBe("stage2");
+    expect(tulouRepairStageForValue(32).id).toBe("stage3");
+    expect(tulouRepairStageForValue(48).id).toBe("stage4");
+    expect(tulouRepairStageForValue(64).id).toBe("stage5");
+    expect(tulouRepairStageForValue(80).id).toBe("stage6");
+    expect(tulouRepairStageForValue(100).id).toBe("stage6");
   });
 });

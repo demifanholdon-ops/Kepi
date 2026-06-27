@@ -7,6 +7,7 @@ const FX_SRC: Record<PrepFx["kind"], string> = {
   shop_refresh: ASSET_MANIFEST.effects.shopRefresh,
   star_up: ASSET_MANIFEST.effects.starUp,
   letter_pickup: ASSET_MANIFEST.effects.letterPickup,
+  repair_home: ASSET_MANIFEST.effects.homeRepair,
   buy_piece: ASSET_MANIFEST.effects.starUp,
   population_up: ASSET_MANIFEST.effects.starUp,
 };
@@ -15,6 +16,7 @@ export const PREP_FX_SRCS = [
   ASSET_MANIFEST.effects.shopRefresh,
   ASSET_MANIFEST.effects.starUp,
   ASSET_MANIFEST.effects.letterPickup,
+  ASSET_MANIFEST.effects.homeRepair,
 ] as const;
 
 export function renderPrepFxLayer(
@@ -29,6 +31,7 @@ export function renderPrepFxLayer(
 
   for (const fx of prepFx) {
     const elapsed = now - fx.startedAt;
+    if (elapsed < 0) continue;
     const t = elapsed / fx.durationMs;
     if (t >= 1) continue;
 
@@ -43,6 +46,8 @@ export function renderPrepFxLayer(
     const baseSize =
       fx.kind === "letter_pickup"
         ? state.metrics.cellSize * 2.4
+        : fx.kind === "repair_home"
+          ? state.metrics.cellSize * 2.2
         : fx.kind === "shop_refresh"
           ? state.metrics.cellSize * 2
           : state.metrics.cellSize * 1.65;
@@ -50,12 +55,15 @@ export function renderPrepFxLayer(
 
     ctx.save();
     ctx.globalCompositeOperation = "lighten";
-    ctx.globalAlpha = fade * (fx.kind === "letter_pickup" ? 0.92 : 0.78);
+    const isLogisticsFx = fx.kind === "letter_pickup" || fx.kind === "repair_home";
+    ctx.globalAlpha = fade * (isLogisticsFx ? 0.92 : 0.78);
     ctx.drawImage(img, x - size / 2, y - size / 2, size, size);
 
-    if (fx.kind === "letter_pickup" && t < 0.55) {
+    if (isLogisticsFx && t < 0.55) {
       const trail = ctx.createRadialGradient(x, y, 0, x, y, size * 0.9);
-      trail.addColorStop(0, `rgba(245, 234, 214, ${0.35 * (1 - t / 0.55)})`);
+      const trailColor =
+        fx.kind === "repair_home" ? "246, 193, 119" : "245, 234, 214";
+      trail.addColorStop(0, `rgba(${trailColor}, ${0.35 * (1 - t / 0.55)})`);
       trail.addColorStop(1, "rgba(0,0,0,0)");
       ctx.globalCompositeOperation = "source-over";
       ctx.globalAlpha = 1;

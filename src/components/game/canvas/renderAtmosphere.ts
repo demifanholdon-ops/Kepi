@@ -13,10 +13,6 @@ export function renderSceneAtmosphere(
   if (state.phase === "battle") {
     drawBattleCombatTint(ctx, state);
   }
-
-  if (state.phase === "settlement" && state.lastBattleWon) {
-    drawSettlementRepairGlow(ctx, state);
-  }
 }
 
 /** Foreground drift: mist bands over the whole scene. */
@@ -108,38 +104,6 @@ function drawBattleCombatTint(
   enemyHalf.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = enemyHalf;
   ctx.fillRect(0, 0, width, height * 0.42);
-
-  ctx.restore();
-}
-
-function drawSettlementRepairGlow(
-  ctx: CanvasRenderingContext2D,
-  state: CanvasRenderState,
-): void {
-  const { width, height } = state.metrics;
-  const cx = width * BG_FOCAL_X;
-  const cy = height * BG_FOCAL_Y;
-  const pulse = 0.5 + 0.5 * Math.sin(state.timeMs * 0.005);
-
-  ctx.save();
-
-  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, width * 0.2);
-  glow.addColorStop(0, `rgba(246, 193, 119, ${0.35 * pulse})`);
-  glow.addColorStop(0.55, `rgba(212, 165, 116, ${0.12 * pulse})`);
-  glow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, width, height);
-
-  const repairIcon = loadCachedImage(
-    state.imageCache,
-    ASSET_MANIFEST.effects.homeRepair,
-    state.requestRepaint,
-  );
-  if (repairIcon?.naturalWidth) {
-    const size = state.metrics.cellSize * 1.6;
-    ctx.globalAlpha = 0.55 + pulse * 0.35;
-    ctx.drawImage(repairIcon, cx - size / 2, cy - size * 0.72, size, size);
-  }
 
   ctx.restore();
 }

@@ -120,6 +120,17 @@ export const battleResultSchema = z.object({
   enemyHpPercent: z.number().min(0),
 });
 
+export const settlementSummarySchema = z.object({
+  won: z.boolean(),
+  kebiGained: z.number().int().min(0),
+  sangziGained: z.number().int().min(0),
+  sangziConsumed: z.number().int().min(0),
+  homeRepairBefore: z.number().min(0).max(100),
+  homeRepairGained: z.number().min(0).max(100),
+  homeRepairAfter: z.number().min(0).max(100),
+  survivalLost: z.number().int().min(0),
+});
+
 export const gameSnapshotSchema = z.object({
   version: z.number().int().min(1),
   phase: scenePhaseSchema,
@@ -134,10 +145,13 @@ export const gameSnapshotSchema = z.object({
       allies: z.array(pieceSchema),
       enemies: z.array(enemySchema),
       events: z.array(battleEventSchema),
+      cooldowns: z.record(z.string(), z.number()).optional(),
+      finished: z.boolean().optional(),
     })
     .nullable()
     .optional(),
   lastBattleResult: battleResultSchema.nullable().optional(),
+  settlement: settlementSummarySchema.nullable().optional(),
 });
 
 export type GameSnapshotInput = z.infer<typeof gameSnapshotSchema>;

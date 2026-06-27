@@ -22,6 +22,7 @@ export type {
   Piece,
   PieceType,
   RangeType,
+  SettlementSummary,
   ShopState,
   SupportType,
   SupportUnit,

@@ -67,6 +67,8 @@ describe("static data schemas", () => {
     expect(enemyCount(1)).toBe(3);
     expect(enemyCount(4)).toBe(4);
     expect(enemyCount(6)).toBe(5);
+    expect(STAGES[0]?.boardAsset).toBe("/images/board/kepi_tulou-stage1-broken.png");
+    expect(STAGES[1]?.boardAsset).toBe("/images/board/kepi_tulou-stage2-well.png");
   });
 
   it("validates archival and fallback letters", () => {
@@ -93,19 +95,21 @@ describe("static data engine consumption", () => {
     expect(farmer2.atk).toBe(PIECES.farmer.atk * 2);
   });
 
-  it("spawns enemies using per-type stats and stage scaling", () => {
+  it("spawns enemies using per-type stats, stage scaling, and battle HP factor", () => {
     const stage1 = spawnEnemiesForStage(1);
     expect(stage1).toHaveLength(3);
-    expect(stage1[0]?.hp).toBe(scaledEnemyStats(stage1[0]!.type, 1).hp);
+    const base = scaledEnemyStats(stage1[0]!.type, 1).hp;
+    expect(stage1[0]?.hp).toBe(Math.max(1, Math.round(base * BALANCE.battle.enemyHpFactor)));
 
     const stage6 = spawnEnemiesForStage(6);
     expect(stage6).toHaveLength(5);
-    const scaled = scaledEnemyStats("qianhaibei", 2);
-    expect(stage6[0]?.hp).toBe(scaled.hp);
+    const scaled = scaledEnemyStats("qianhaibei", 2).hp;
+    expect(stage6[0]?.hp).toBe(Math.max(1, Math.round(scaled * BALANCE.battle.enemyHpFactor)));
   });
 
-  it("uses PRD damage formula", () => {
-    expect(calcDamage(35, 10)).toBeCloseTo(31.818, 2);
+  it("uses PRD damage formula with battle multiplier", () => {
+    const raw = (35 * 100) / (100 + 10);
+    expect(calcDamage(35, 10)).toBeCloseTo(raw * BALANCE.battle.damageMultiplier, 2);
   });
 
   it("exposes economy streak bonuses from balance table", () => {

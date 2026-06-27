@@ -1,13 +1,21 @@
 import type { GameAction, GameSnapshot } from "@/types";
 import { defaultAllyPosition } from "@/lib/game/boardLayout";
-import { simulateBattle } from "./battle";
+import {
+  advanceBattleTick,
+  createBattleSnapshot,
+  syncBoardFromBattle,
+} from "./battle";
 import {
   INITIAL_GOLD,
   INITIAL_POPULATION,
   SNAPSHOT_VERSION,
 } from "./constants";
 import { applyRoundIncome } from "./economy";
-import { resolveProgression, settleStage } from "./progression";
+import {
+  applyHomeRepairFromSettlement,
+  resolveProgression,
+  settleStage,
+} from "./progression";
 import {
   buyPiece,
   buyPopulation,
@@ -50,6 +58,7 @@ export function createInitialSnapshot(): GameSnapshot {
     ],
     battle: null,
     lastBattleResult: null,
+    settlement: null,
   };
 
   return rollShop(base);
@@ -86,7 +95,7 @@ export function reduceGameState(
       const board = snapshot.board.map((piece, index) =>
         piece.position ? piece : { ...piece, position: defaultAllyPosition(index) },
       );
-      const battleResult = simulateBattle({
+      const battle = createBattleSnapshot({
         stage: snapshot.state.stage,
         allies: board,
       });
@@ -94,33 +103,56 @@ export function reduceGameState(
         {
           ...snapshot,
           board,
-          lastBattleResult: battleResult,
-          battle: null,
+          battle,
+          lastBattleResult: null,
+          settlement: null,
         },
         "battle",
       );
+    }
+
+    case "BATTLE_TICK": {
+      if (!snapshot.battle || snapshot.battle.finished) {
+        return snapshot;
+      }
+      const step = advanceBattleTick(snapshot.battle);
+      return {
+        ...snapshot,
+        battle: step.battle,
+        lastBattleResult: step.result ?? snapshot.lastBattleResult,
+      };
     }
 
     case "END_BATTLE": {
       if (!snapshot.lastBattleResult) {
         return transitionPhase(snapshot, "settlement");
       }
-      const settled = settleStage(snapshot, snapshot.lastBattleResult);
+      const board = syncBoardFromBattle(snapshot.board, snapshot.battle);
+      const settled = settleStage(
+        { ...snapshot, board },
+        snapshot.lastBattleResult,
+      );
       return transitionPhase(settled, "settlement");
     }
+
+    case "APPLY_HOME_REPAIR":
+      return applyHomeRepairFromSettlement(snapshot);
 
     case "ADVANCE_STAGE": {
       const won = snapshot.lastBattleResult?.won ?? false;
       let next = resolveProgression(snapshot);
       if (next.phase === "ending") {
-        return next;
+        return { ...next, battle: null, lastBattleResult: null, settlement: null };
       }
       if (won) {
         next = applyRoundIncome(next);
       }
       next = rollShop(next);
       next = recallBoardToBench(next);
-      return transitionPhase(next, "prep");
+      return transitionPhase(
+        { ...next, battle: null, lastBattleResult: null, settlement: null },
+        "prep",
+      );
     }
 
     default:
@@ -128,9 +160,17 @@ export function reduceGameState(
   }
 }
 
-export { calcDamage, simulateBattle, spawnEnemiesForStage } from "./battle";
+export {
+  advanceBattleTick,
+  calcDamage,
+  createBattleSnapshot,
+  simulateBattle,
+  spawnEnemiesForStage,
+  syncBoardFromBattle,
+} from "./battle";
 export { calcInterest, calcStreakBonus, applyRoundIncome } from "./economy";
 export {
+  applyHomeRepairFromSettlement,
   homeRepairStage,
   resolveProgression,
   settleStage,

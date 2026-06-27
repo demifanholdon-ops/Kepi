@@ -481,6 +481,126 @@
     padding: 0.5rem 0.625rem;
   }
 
+  .kepi-settlement-step {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 3rem;
+    padding: 0.5rem 0.625rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(92, 64, 51, 0.14);
+    background:
+      linear-gradient(90deg, rgba(246, 193, 119, 0.16), transparent),
+      rgba(44, 36, 22, 0.06);
+  }
+
+  .kepi-victory-skip {
+    position: absolute;
+    top: max(1rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
+    z-index: 12;
+    border-radius: 999px;
+    border: 1px solid rgba(245, 234, 214, 0.22);
+    background: rgba(20, 14, 8, 0.44);
+    padding: 0.45rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(245, 234, 214, 0.92);
+    backdrop-filter: blur(8px);
+  }
+
+  .kepi-victory-skip:hover {
+    background: rgba(20, 14, 8, 0.6);
+  }
+
+  .kepi-victory-shot-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .kepi-victory-vignette {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(9, 7, 5, 0.18) 0%, transparent 28%),
+      linear-gradient(0deg, rgba(9, 7, 5, 0.82) 0%, rgba(9, 7, 5, 0.28) 34%, transparent 58%);
+  }
+
+  .kepi-victory-progress {
+    position: absolute;
+    top: max(1rem, env(safe-area-inset-top));
+    left: max(1rem, env(safe-area-inset-left));
+    right: max(5.5rem, calc(env(safe-area-inset-right) + 4.5rem));
+    z-index: 11;
+    height: 3px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(245, 234, 214, 0.14);
+  }
+
+  .kepi-victory-progress-bar {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, rgba(232, 168, 73, 0.85), rgba(245, 234, 214, 0.95));
+    transition: width 500ms ease;
+  }
+
+  .kepi-victory-dialogue {
+    position: absolute;
+    left: max(1rem, env(safe-area-inset-left));
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    z-index: 12;
+    border-radius: 0.85rem;
+    border: 1px solid rgba(245, 234, 214, 0.16);
+    background:
+      linear-gradient(180deg, rgba(20, 14, 8, 0.72), rgba(9, 7, 5, 0.88));
+    padding: 1rem 1.1rem 1.05rem;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(10px);
+    animation: kepi-victory-dialogue-in 420ms ease both;
+  }
+
+  .kepi-victory-speaker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: rgba(232, 168, 73, 0.92);
+  }
+
+  .kepi-victory-line {
+    margin: 0.45rem 0 0;
+    font-size: clamp(1rem, 2.8vw, 1.18rem);
+    font-weight: 700;
+    line-height: 1.55;
+    color: rgba(245, 234, 214, 0.96);
+  }
+
+  .kepi-victory-aside {
+    margin: 0.55rem 0 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(232, 168, 73, 0.82);
+  }
+
+  @keyframes kepi-victory-dialogue-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .kepi-bench-strip {
     align-items: flex-end;
     gap: 0.375rem;

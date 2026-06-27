@@ -1,20 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { ASSET_MANIFEST } from "@/data/assets";
 import { spawnEnemiesForStage } from "@/engine/battle";
-import { homeRepairStage } from "@/engine/progression";
-import { ENEMY_VISUALS, PIECE_VISUALS } from "@/lib/game/assets";
+import {
+  ENEMY_VISUALS,
+  homeRepairThemeStage,
+  PIECE_VISUALS,
+} from "@/lib/game/assets";
 import { computeBoardMetrics, pixelToBoard } from "@/lib/game/boardLayout";
 import {
-  battleReplayEventCount,
-  replayBattleHp,
-} from "@/lib/game/battleReplay";
+  buildAttackSlashes,
+  collectNewAttackPulses,
+  computeUnitCombatVisuals,
+  pruneAttackPulses,
+  type AttackPulse,
+} from "@/lib/game/battleAnim";
+import { combatUnitsFromSnapshot } from "@/lib/game/combatUnits";
 import { loadCachedImage } from "@/lib/game/imageCache";
 import {
   TULOU_BACKGROUND_SRCS,
-  transitionBurstForCrossing,
+  tulouRepairStageForValue,
 } from "@/lib/game/tulouBackground";
-import type { BoardPosition, GameSnapshot } from "@/types";
+import { TULOU_BOARD_ASSETS } from "@/lib/game/assets";
+import type { BoardPosition, Enemy, GameSnapshot, Piece } from "@/types";
 import { hitTestUnits } from "@/lib/game/unitHitTest";
 import {
   resolveAllyBoardPosition,
@@ -23,20 +32,14 @@ import {
   unitSpriteMetrics,
 } from "@/lib/game/unitLayout";
 import { useFxStore } from "@/store/fxStore";
+import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
 import { buildBattleEffects, renderGameCanvas } from "./renderFrame";
 import { SCENE_EFFECT_SRCS } from "./renderAtmosphere";
 import { PREP_FX_SRCS } from "./renderPrepFx";
 import type { CanvasRenderState } from "./types";
 
-const AMBIENT_FPS = 24;
-const TRANSITION_BURST_MS = 450;
-
-type ActiveBurst = {
-  src: string;
-  startMs: number;
-  durationMs: number;
-};
+const AMBIENT_FPS = 30;
 
 type UseGameCanvasOptions = {
   snapshot: GameSnapshot;
@@ -49,16 +52,16 @@ export function useGameCanvas(
   canvasRef: React.RefObject<HTMLCanvasElement | null>,
   { snapshot, selectedPieceId, onCellClick, onUnitClick }: UseGameCanvasOptions,
 ) {
+  const snapshotKebi = snapshot.state.kebi;
+  const homeRepair = snapshot.state.homeRepair;
   const imageCache = useRef(new Map<string, HTMLImageElement | "loading" | "error">());
   const portraitCache = useRef(new Map<string, HTMLImageElement | "loading" | "error">());
-  const battleTickRef = useRef(0);
-  const battleFrameRef = useRef(0);
   const snapshotRef = useRef(snapshot);
   const selectedRef = useRef(selectedPieceId);
   const paintRef = useRef<() => void>(() => {});
   const timeMsRef = useRef(0);
-  const burstRef = useRef<ActiveBurst | null>(null);
-  const prevHomeRepairRef = useRef(snapshot.state.homeRepair);
+  const attackPulsesRef = useRef<AttackPulse[]>([]);
+  const lastEventCountRef = useRef(0);
   const lastKebiFxRef = useRef(snapshot.state.kebi);
   const prepFxRef = useRef(useFxStore.getState().prepFx);
   const hoveredTargetRef = useRef<{ side: "ally" | "enemy"; unitId: string } | null>(
@@ -105,34 +108,36 @@ export function useGameCanvas(
   }, [snapshot, selectedPieceId]);
 
   useEffect(() => {
-    const prev = prevHomeRepairRef.current;
-    const next = snapshot.state.homeRepair;
-    const burstSrc = transitionBurstForCrossing(prev, next);
-    if (burstSrc) {
-      burstRef.current = {
-        src: burstSrc,
-        startMs: performance.now(),
-        durationMs: TRANSITION_BURST_MS,
-      };
+    if (snapshot.phase === "battle" && snapshot.battle?.tick === 0) {
+      attackPulsesRef.current = [];
+      lastEventCountRef.current = 0;
     }
-    prevHomeRepairRef.current = next;
-  }, [snapshot.state.homeRepair]);
+    if (snapshot.phase !== "battle" && snapshot.phase !== "settlement") {
+      attackPulsesRef.current = [];
+      lastEventCountRef.current = 0;
+    }
+  }, [snapshot.phase, snapshot.battle?.tick]);
 
   useEffect(() => {
-    const { kebi } = snapshot.state;
+    const events = snapshot.battle?.events ?? [];
+    if (events.length > lastEventCountRef.current) {
+      const now = performance.now();
+      attackPulsesRef.current.push(
+        ...collectNewAttackPulses(events, lastEventCountRef.current, now),
+      );
+      lastEventCountRef.current = events.length;
+    }
+  }, [snapshot.battle?.events]);
+
+  useEffect(() => {
+    const settlement = snapshot.settlement;
     const won =
       snapshot.phase === "settlement" && (snapshot.lastBattleResult?.won ?? false);
-
-    if (won && kebi > lastKebiFxRef.current) {
-      useFxStore.getState().pushPrepFx({
-        kind: "letter_pickup",
-        xRatio: 0.11,
-        yRatio: 0.13,
-        durationMs: 1400,
-      });
+    if (won && settlement && snapshotKebi > lastKebiFxRef.current) {
+      playSettlementSfx(settlement.homeRepairGained > 0);
     }
-    lastKebiFxRef.current = kebi;
-  }, [snapshot.state.kebi, snapshot.phase, snapshot.lastBattleResult]);
+    lastKebiFxRef.current = snapshotKebi;
+  }, [snapshotKebi, snapshot.phase, snapshot.lastBattleResult, snapshot.settlement]);
 
   const paint = useCallback(() => {
     const canvas = canvasRef.current;
@@ -150,52 +155,43 @@ export function useGameCanvas(
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const now = performance.now();
-    const current = snapshotRef.current;
+    const current = useGameStore.getState().snapshot;
+    snapshotRef.current = current;
     const metrics = computeBoardMetrics(rect.width, rect.height);
-    const tulouStage = homeRepairStage(current.state.homeRepair);
-    let enemies =
-      current.phase === "prep" ||
-      current.phase === "battle" ||
-      current.phase === "settlement"
-        ? spawnEnemiesForStage(current.state.stage)
-        : [];
+    const tulouStage = homeRepairThemeStage(current.state.homeRepair);
+    const { allies, enemies } = combatUnitsFromSnapshot(current);
+    const battleEvents =
+      current.battle?.events ?? current.lastBattleResult?.events ?? [];
+    const battleTick = battleEvents.length;
+    const inCombatView =
+      current.phase === "battle" || current.phase === "settlement";
 
-    const battleEvents = current.lastBattleResult?.events ?? [];
-    let allies = current.board;
-
-    if (
-      current.lastBattleResult &&
-      (current.phase === "battle" || current.phase === "settlement")
-    ) {
-      const eventCount = battleReplayEventCount(
-        current.phase,
-        battleTickRef.current,
-        battleEvents.length,
-      );
-      const replayed = replayBattleHp(allies, enemies, battleEvents, eventCount);
-      allies = replayed.allies;
-      enemies = replayed.enemies;
-    }
+    attackPulsesRef.current = pruneAttackPulses(attackPulsesRef.current, now);
+    const { motionPx, hitFlash } = inCombatView
+      ? computeUnitCombatVisuals(
+          attackPulsesRef.current,
+          now,
+          allies,
+          enemies,
+          metrics,
+        )
+      : { motionPx: {}, hitFlash: {} };
+    const attackSlashes = inCombatView
+      ? buildAttackSlashes(
+          attackPulsesRef.current,
+          now,
+          allies,
+          enemies,
+          metrics,
+        )
+      : [];
 
     const effects = buildBattleEffects(
       battleEvents,
-      battleTickRef.current,
-      current.board,
-      spawnEnemiesForStage(current.state.stage),
+      battleTick,
+      allies,
+      enemies,
     );
-
-    const burst = burstRef.current;
-    const transitionBurst =
-      burst && now - burst.startMs < burst.durationMs
-        ? {
-            src: burst.src,
-            progress: Math.min(1, (now - burst.startMs) / burst.durationMs),
-          }
-        : null;
-
-    if (burst && !transitionBurst) {
-      burstRef.current = null;
-    }
 
     useFxStore.getState().prunePrepFx(now);
 
@@ -209,14 +205,16 @@ export function useGameCanvas(
       hoveredAllyCell: hoveredAllyCellRef.current,
       selectedPieceId: selectedRef.current,
       battleEvents,
-      battleTick: battleTickRef.current,
+      battleTick,
       lastBattleWon:
         current.phase === "settlement"
           ? (current.lastBattleResult?.won ?? null)
           : null,
       effects,
+      attackSlashes,
+      unitMotionPx: motionPx,
+      hitFlash,
       timeMs: timeMsRef.current || now,
-      transitionBurst,
       prepFx: prepFxRef.current,
       hoveredUnit: hoveredTargetRef.current,
       imageCache: imageCache.current,
@@ -225,24 +223,44 @@ export function useGameCanvas(
     };
 
     renderGameCanvas(ctx, state);
-  }, [canvasRef]);
+  }, [canvasRef, homeRepair]);
 
   useEffect(() => {
     paintRef.current = paint;
   }, [paint]);
 
   useEffect(() => {
-    battleTickRef.current = 0;
-    battleFrameRef.current = 0;
     paint();
   }, [snapshot, selectedPieceId, paint]);
+
+  const preloadTulouStage = useCallback((repair: number) => {
+    const onLoad = () => paintRef.current();
+    const stageSrc = tulouRepairStageForValue(repair).src;
+    loadCachedImage(imageCache.current, stageSrc, onLoad, { retryOnError: true });
+    paintRef.current();
+  }, []);
+
+  useLayoutEffect(() => {
+    preloadTulouStage(homeRepair);
+  }, [homeRepair, preloadTulouStage]);
+
+  useEffect(() => {
+    let prevRepair = useGameStore.getState().snapshot.state.homeRepair;
+    return useGameStore.subscribe((store) => {
+      const nextRepair = store.snapshot.state.homeRepair;
+      if (nextRepair === prevRepair) return;
+      prevRepair = nextRepair;
+      preloadTulouStage(nextRepair);
+    });
+  }, [preloadTulouStage]);
 
   useEffect(() => {
     const onLoad = () => paintRef.current();
     const cache = imageCache.current;
 
+    loadCachedImage(cache, TULOU_BOARD_ASSETS.stage1, onLoad, { retryOnError: true });
     for (const src of TULOU_BACKGROUND_SRCS) {
-      loadCachedImage(cache, src, onLoad);
+      loadCachedImage(cache, src, onLoad, { retryOnError: true });
     }
     for (const src of SCENE_EFFECT_SRCS) {
       loadCachedImage(cache, src, onLoad);
@@ -283,30 +301,20 @@ export function useGameCanvas(
     const tick = (now: number) => {
       timeMsRef.current = now;
 
-      const battleResult = snapshotRef.current.lastBattleResult;
-      const battleAnimating =
-        snapshotRef.current.phase === "battle" &&
-        Boolean(battleResult) &&
-        battleTickRef.current < battleResult!.events.length;
+      snapshotRef.current = useGameStore.getState().snapshot;
 
-      if (battleAnimating) {
-        battleFrameRef.current += 1;
-        if (battleFrameRef.current % 3 === 0) {
-          battleTickRef.current += 1;
-        }
-      }
-
-      const burstActive =
-        burstRef.current !== null &&
-        now - burstRef.current.startMs < burstRef.current.durationMs;
+      const current = snapshotRef.current;
+      const battleActive =
+        current.phase === "battle" &&
+        Boolean(current.battle) &&
+        !current.battle!.finished;
 
       const needsAmbient =
-        burstActive ||
-        battleAnimating ||
-        snapshotRef.current.phase === "battle" ||
-        snapshotRef.current.phase === "settlement" ||
+        battleActive ||
+        current.phase === "battle" ||
+        current.phase === "settlement" ||
         prepFxRef.current.length > 0 ||
-        (snapshotRef.current.phase === "prep" &&
+        (current.phase === "prep" &&
           Boolean(selectedRef.current) &&
           hoveredAllyCellRef.current !== null);
 
@@ -328,9 +336,6 @@ export function useGameCanvas(
     if (snapshot.phase === "battle") {
       useFxStore.getState().clearPrepFx();
     }
-    if (snapshot.phase !== "battle") {
-      battleFrameRef.current = 0;
-    }
     useUIStore.getState().setHoveredUnit(null);
   }, [snapshot.phase]);
 
@@ -344,12 +349,7 @@ export function useGameCanvas(
       const y = clientY - rect.top;
       const current = snapshotRef.current;
       const metrics = computeBoardMetrics(rect.width, rect.height);
-      const enemies =
-        current.phase === "prep" ||
-        current.phase === "battle" ||
-        current.phase === "settlement"
-          ? spawnEnemiesForStage(current.state.stage)
-          : [];
+      const { allies, enemies } = combatUnitsFromSnapshot(current);
 
       const placing =
         current.phase === "prep" && Boolean(selectedRef.current);
@@ -370,7 +370,7 @@ export function useGameCanvas(
         x,
         y,
         metrics,
-        current.board,
+        allies,
         enemies,
         current.phase,
         { skipAllies: placing },
@@ -385,8 +385,8 @@ export function useGameCanvas(
       canvas.style.cursor = "pointer";
       let position;
       if (hit.side === "ally") {
-        const allyIndex = current.board.findIndex((piece) => piece.id === hit.id);
-        const piece = current.board[allyIndex];
+        const allyIndex = allies.findIndex((piece) => piece.id === hit.id);
+        const piece = allies[allyIndex];
         if (!piece) return;
         position = resolveAllyBoardPosition(piece, allyIndex);
       } else {
@@ -490,4 +490,19 @@ export function useGameCanvas(
     canvas.addEventListener("click", handleClick);
     return () => canvas.removeEventListener("click", handleClick);
   }, [canvasRef, onCellClick, onUnitClick]);
+}
+
+function playSettlementSfx(playRepair: boolean): void {
+  if (typeof window === "undefined") return;
+
+  const collect = new Audio(ASSET_MANIFEST.audio.sfxCollectLetter);
+  collect.volume = 0.72;
+  void collect.play().catch(() => undefined);
+
+  if (!playRepair) return;
+  window.setTimeout(() => {
+    const repair = new Audio(ASSET_MANIFEST.audio.sfxRepairHome);
+    repair.volume = 0.64;
+    void repair.play().catch(() => undefined);
+  }, 650);
 }

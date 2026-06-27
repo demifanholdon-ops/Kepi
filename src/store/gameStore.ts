@@ -14,6 +14,7 @@ type GameStore = {
   moveSelected: (position: BoardPosition) => boolean;
   startBattle: () => boolean;
   endBattle: () => void;
+  applyHomeRepair: () => boolean;
   advanceStage: () => void;
   resetGame: () => void;
   replaceSnapshot: (snapshot: GameSnapshot) => void;
@@ -84,6 +85,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   endBattle: () => {
     apply(set, get, { type: "END_BATTLE" });
+  },
+
+  applyHomeRepair: () => {
+    return apply(set, get, { type: "APPLY_HOME_REPAIR" });
   },
 
   advanceStage: () => {

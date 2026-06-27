@@ -14,15 +14,29 @@ export const ASSET_MANIFEST = {
   },
 
   board: {
-    main: "/images/board/kepi_tulou-board-main.png",
+    /** Default tulou backdrop at 0% repair — same as tulouStage1. */
+    main: "/images/board/kepi_tulou-stage1-broken.png",
     tulouStage1: "/images/board/kepi_tulou-stage1-broken.png",
-    tulouStage2: "/images/board/kepi_tulou-stage2-repair.png",
-    tulouStage3: "/images/board/kepi_tulou-stage3-renewed.png",
+    tulouStage2: "/images/board/kepi_tulou-stage2-well.png",
+    tulouStage3: "/images/board/kepi_tulou-stage3-gate.png",
+    tulouStage4: "/images/board/kepi_tulou-stage4-roof.png",
+    tulouStage5: "/images/board/kepi_tulou-stage5-lanterns.png",
+    tulouStage6: "/images/board/kepi_tulou-stage6-renewed.png",
     tulouTransition12: "/images/board/kepi_tulou-transition-1-2.png",
     tulouTransition23: "/images/board/kepi_tulou-transition-2-3.png",
     battleBg: "/images/board/kepi_battle-background.png",
     endingBg: "/images/ending/kepi_ending-background.png",
     seaPassage: "/images/ending/kepi_wind-wave-background.png",
+  },
+
+  cinematics: {
+    seaDelivery: "/images/cinematics/kepi_victory-sea-delivery.png",
+    handoff: "/images/cinematics/kepi_victory-handoff.png",
+    sangziReveal: "/images/cinematics/kepi_victory-sangzi-reveal.png",
+    repairHome: "/images/cinematics/kepi_victory-repair-home.png",
+    letterStack: "/images/cinematics/kepi_victory-letter-stack.png",
+    sangziGlow: "/images/cinematics/kepi_victory-sangzi-glow.png",
+    waveForeground: "/images/cinematics/kepi_victory-wave-foreground.png",
   },
 
   characters: {

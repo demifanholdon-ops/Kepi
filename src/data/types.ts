@@ -80,7 +80,7 @@ export type DigitalLetterFallback = {
 
 /** Tulou visual stage keyed by homeRepair thresholds. */
 export type TulouVisualStage = {
-  id: "ruined" | "repairing" | "renewed";
+  id: "stage1" | "stage2" | "stage3" | "stage4" | "stage5" | "stage6";
   minRepair: number;
   maxRepair: number;
   label: string;

@@ -1,4 +1,5 @@
 import type { EnemyType } from "@/types";
+import { BALANCE, tulouStageForRepair } from "./balance";
 import { ENEMY_TYPES } from "./enemies";
 import type { StageDefinition } from "./types";
 
@@ -33,6 +34,11 @@ export const STAGES: readonly StageDefinition[] = Array.from(
     const difficulty =
       stage <= 2 ? "tutorial" : stage <= 4 ? "normal" : "hard";
 
+    const expectedHomeRepair = Math.min(
+      100,
+      (stage - 1) * BALANCE.progression.homeRepairPerWin,
+    );
+
     return {
       stage,
       name: STAGE_NAMES[index]!,
@@ -42,7 +48,7 @@ export const STAGES: readonly StageDefinition[] = Array.from(
       prepTimeSec: 30,
       difficulty,
       aiDynamic: stage >= 5,
-      boardAsset: "/images/board/kepi_tulou-board-main.png",
+      boardAsset: tulouStageForRepair(expectedHomeRepair).boardAsset,
     } satisfies StageDefinition;
   },
 );

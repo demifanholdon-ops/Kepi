@@ -1,7 +1,7 @@
 "use client";
 
 import { ASSET_MANIFEST } from "@/data/assets";
-import { homeRepairStage } from "@/engine";
+import { homeRepairStageLabel } from "@/lib/game/assets";
 import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
@@ -14,16 +14,11 @@ export function LetterStrip() {
   const expanded = useUIStore((state) => state.letterStripExpanded);
   const setExpanded = useUIStore((state) => state.setLetterStripExpanded);
   const { state, support, phase } = snapshot;
+  const settlement = snapshot.settlement;
 
   if (phase === "ending" || phase === "settings") return null;
 
-  const repairStage = homeRepairStage(state.homeRepair);
-  const repairLabel =
-    repairStage === "ruined"
-      ? "破败"
-      : repairStage === "repairing"
-        ? "修缮中"
-        : "焕新";
+  const repairLabel = homeRepairStageLabel(state.homeRepair);
 
   return (
     <div className="pointer-events-auto mx-auto w-full max-w-5xl">
@@ -39,7 +34,15 @@ export function LetterStrip() {
 
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-0.5 text-[0.6875rem] text-kepi-ink-muted">
             <Metric icon={UI.survival} label="存续" value={String(state.survival)} />
-            <Metric icon={UI.sangzi} label="桑梓" value={String(state.sangzi)} />
+            <Metric
+              icon={UI.sangzi}
+              label="桑梓"
+              value={
+                phase === "settlement" && settlement?.sangziConsumed
+                  ? `+${settlement.sangziGained}→修缮`
+                  : String(state.sangzi)
+              }
+            />
             <Metric
               icon={UI.homeRepair}
               label="修复"
@@ -89,8 +92,8 @@ export function LetterStrip() {
                     </p>
                     <p className="text-[0.625rem] leading-snug text-kepi-ink-muted">
                       {unit.type === "shuike"
-                        ? "胜局收信带回桑梓"
-                        : "消耗桑梓修缮土楼"}
+                        ? "胜局自动收信，带回桑梓"
+                        : "自动消耗桑梓修缮土楼"}
                     </p>
                   </div>
                 </div>

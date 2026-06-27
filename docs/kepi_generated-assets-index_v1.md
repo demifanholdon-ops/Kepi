@@ -1,6 +1,6 @@
 # 《客批》生成 PNG 资源索引 v1
 
-> 更新：2026-06-26
+> 更新：2026-06-27
 > 说明：本索引对应当前 `public/images/` 中的静态 PNG 资源；音频未包含。
 
 ## Board
@@ -62,6 +62,15 @@
 - `ending/kepi_wind-scatter-letters.png`
 - `ending/kepi_wind-wave-background.png`
 
+## Cinematics
+- `cinematics/kepi_victory-handoff.png`
+- `cinematics/kepi_victory-letter-stack.png`
+- `cinematics/kepi_victory-repair-home.png`
+- `cinematics/kepi_victory-sea-delivery.png`
+- `cinematics/kepi_victory-sangzi-reveal.png`
+- `cinematics/kepi_victory-sangzi-glow.png`
+- `cinematics/kepi_victory-wave-foreground.png`
+
 ## Effects
 - `effects/kepi_effect-ending-letter-variant.png`
 - `effects/kepi_effect-fengshui-buff-tile.png`
@@ -73,4 +82,4 @@
 - `effects/kepi_effect-star-up.png`
 - `effects/kepi_event-public-welfare.png`
 
-共生成 / 保留 58 张 PNG。
+共生成 / 保留 65 张 PNG。

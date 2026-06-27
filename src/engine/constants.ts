@@ -31,6 +31,9 @@ export const HOME_REPAIR_PER_WIN = BALANCE.progression.homeRepairPerWin;
 
 export const BATTLE_TICK_MS = BALANCE.battle.tickMs;
 export const BATTLE_MAX_MS = BALANCE.battle.maxMs;
+export const BATTLE_TICKS_PER_FRAME_CAP = BALANCE.battle.ticksPerFrameCap;
+export const BATTLE_ENEMY_HP_FACTOR = BALANCE.battle.enemyHpFactor;
+export const BATTLE_DAMAGE_MULTIPLIER = BALANCE.battle.damageMultiplier;
 
 export type PieceTemplate = {
   cost: number;

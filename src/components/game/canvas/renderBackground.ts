@@ -1,8 +1,5 @@
 import { loadCachedImage, type ImageCache } from "@/lib/game/imageCache";
-import {
-  resolveTransitionOverlay,
-  resolveTulouBackgroundLayers,
-} from "@/lib/game/tulouBackground";
+import { resolveTulouBackgroundLayers } from "@/lib/game/tulouBackground";
 import type { CanvasRenderState, CanvasTheme } from "./types";
 
 /** Image focal point for object-cover crop (matches tulou courtyard center). */
@@ -20,7 +17,9 @@ export function renderBackgroundLayer(
 
   for (const layer of layers) {
     if (layer.alpha <= 0) continue;
-    const img = loadCachedImage(state.imageCache, layer.src, state.requestRepaint);
+    const img = loadCachedImage(state.imageCache, layer.src, state.requestRepaint, {
+      retryOnError: true,
+    });
     if (!img) continue;
 
     ctx.save();
@@ -28,34 +27,6 @@ export function renderBackgroundLayer(
     drawCoverImage(ctx, img, width, height, BG_FOCAL_X, BG_FOCAL_Y);
     ctx.restore();
     drewAny = true;
-  }
-
-  const overlay = resolveTransitionOverlay(state.homeRepair);
-  if (overlay) {
-    const img = loadCachedImage(state.imageCache, overlay.src, state.requestRepaint);
-    if (img) {
-      ctx.save();
-      ctx.globalAlpha = overlay.alpha;
-      drawCoverImage(ctx, img, width, height, BG_FOCAL_X, BG_FOCAL_Y);
-      ctx.restore();
-      drewAny = true;
-    }
-  }
-
-  if (state.transitionBurst) {
-    const burstAlpha = Math.sin(state.transitionBurst.progress * Math.PI) * 0.68;
-    const img = loadCachedImage(
-      state.imageCache,
-      state.transitionBurst.src,
-      state.requestRepaint,
-    );
-    if (img && burstAlpha > 0.01) {
-      ctx.save();
-      ctx.globalAlpha = burstAlpha;
-      drawCoverImage(ctx, img, width, height, BG_FOCAL_X, BG_FOCAL_Y);
-      ctx.restore();
-      drewAny = true;
-    }
   }
 
   if (!drewAny) {

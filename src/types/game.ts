@@ -38,6 +38,17 @@ export type GameState = {
   result: GameResult;
 };
 
+export type SettlementSummary = {
+  won: boolean;
+  kebiGained: number;
+  sangziGained: number;
+  sangziConsumed: number;
+  homeRepairBefore: number;
+  homeRepairGained: number;
+  homeRepairAfter: number;
+  survivalLost: number;
+};
+
 export type Piece = {
   id: string;
   type: PieceType;
@@ -82,6 +93,8 @@ export type BattleSnapshot = {
   allies: Piece[];
   enemies: Enemy[];
   events: BattleEvent[];
+  cooldowns?: Record<string, number>;
+  finished?: boolean;
 };
 
 export type BattleResult = {
@@ -115,6 +128,7 @@ export type GameSnapshot = {
   support: SupportUnit[];
   battle?: BattleSnapshot | null;
   lastBattleResult?: BattleResult | null;
+  settlement?: SettlementSummary | null;
 };
 
 export type GameAction =
@@ -124,6 +138,8 @@ export type GameAction =
   | { type: "REFRESH_SHOP" }
   | { type: "BUY_POPULATION" }
   | { type: "START_BATTLE" }
+  | { type: "BATTLE_TICK" }
   | { type: "END_BATTLE" }
+  | { type: "APPLY_HOME_REPAIR" }
   | { type: "ADVANCE_STAGE" }
   | { type: "LOAD_SNAPSHOT"; snapshot: GameSnapshot };

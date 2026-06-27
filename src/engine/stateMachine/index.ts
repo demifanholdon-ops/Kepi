@@ -9,8 +9,11 @@ const PREP_ACTIONS = new Set<GameAction["type"]>([
   "START_BATTLE",
 ]);
 
-const BATTLE_ACTIONS = new Set<GameAction["type"]>(["END_BATTLE"]);
-const SETTLEMENT_ACTIONS = new Set<GameAction["type"]>(["ADVANCE_STAGE"]);
+const BATTLE_ACTIONS = new Set<GameAction["type"]>(["BATTLE_TICK", "END_BATTLE"]);
+const SETTLEMENT_ACTIONS = new Set<GameAction["type"]>([
+  "ADVANCE_STAGE",
+  "APPLY_HOME_REPAIR",
+]);
 
 export function canApplyAction(
   snapshot: GameSnapshot,

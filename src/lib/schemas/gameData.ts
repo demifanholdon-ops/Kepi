@@ -98,10 +98,13 @@ export const balanceSchema = z.object({
     }),
   }),
   battle: z.object({
-    tickMs: z.literal(100),
+    tickMs: z.literal(8),
     maxMs: z.literal(40_000),
+    ticksPerFrameCap: z.literal(22),
     prepTimeSec: z.literal(30),
     damageFormula: z.literal("atk * 100 / (100 + armor)"),
+    enemyHpFactor: z.literal(0.55),
+    damageMultiplier: z.literal(1.75),
   }),
   progression: z.object({
     sangziPerWin: z.number().int().positive(),

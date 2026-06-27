@@ -1,7 +1,15 @@
+import { homeRepairVisualStage } from "@/data/balance";
 import { ASSET_MANIFEST } from "@/data/assets";
 import type { EnemyType, PieceType } from "@/types";
 
 export type TulouVisualStage = "ruined" | "repairing" | "renewed";
+export type TulouRepairStage =
+  | "stage1"
+  | "stage2"
+  | "stage3"
+  | "stage4"
+  | "stage5"
+  | "stage6";
 
 export type UnitVisualMeta = {
   label: string;
@@ -12,9 +20,12 @@ export type UnitVisualMeta = {
 };
 
 export const TULOU_BOARD_ASSETS = {
-  ruined: ASSET_MANIFEST.board.tulouStage1,
-  repairing: ASSET_MANIFEST.board.tulouStage2,
-  renewed: ASSET_MANIFEST.board.tulouStage3,
+  stage1: ASSET_MANIFEST.board.tulouStage1,
+  stage2: ASSET_MANIFEST.board.tulouStage2,
+  stage3: ASSET_MANIFEST.board.tulouStage3,
+  stage4: ASSET_MANIFEST.board.tulouStage4,
+  stage5: ASSET_MANIFEST.board.tulouStage5,
+  stage6: ASSET_MANIFEST.board.tulouStage6,
 } as const;
 
 export const PIECE_VISUALS: Record<PieceType, UnitVisualMeta> = {
@@ -105,3 +116,24 @@ export const TULOU_STAGE_LABELS: Record<TulouVisualStage, string> = {
   repairing: "修缮",
   renewed: "翻新",
 };
+
+export const TULOU_REPAIR_STAGE_LABELS: Record<TulouRepairStage, string> = {
+  stage1: "破败",
+  stage2: "井台复水",
+  stage3: "墙门修缮",
+  stage4: "屋瓦补齐",
+  stage5: "祠堂点灯",
+  stage6: "桑梓焕新",
+};
+
+export function homeRepairStageLabel(homeRepair: number): string {
+  return TULOU_REPAIR_STAGE_LABELS[homeRepairVisualStage(homeRepair)];
+}
+
+/** Canvas glow bucket — early / mid / late repair bands. */
+export function homeRepairThemeStage(homeRepair: number): TulouVisualStage {
+  const stage = homeRepairVisualStage(homeRepair);
+  if (stage === "stage1" || stage === "stage2") return "ruined";
+  if (stage === "stage6") return "renewed";
+  return "repairing";
+}

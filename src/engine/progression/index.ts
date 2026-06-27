@@ -11,17 +11,35 @@ export function settleStage(
   const { state } = snapshot;
 
   if (result.won) {
+    const sangziGained = SANGZI_PER_WIN;
+    const availableSangzi = state.sangzi + sangziGained;
+    const sangziConsumed = Math.min(availableSangzi, SANGZI_PER_WIN);
+    const homeRepairBefore = state.homeRepair;
+    const homeRepairAfter = Math.min(
+      100,
+      homeRepairBefore + HOME_REPAIR_PER_WIN,
+    );
+
     return {
       ...snapshot,
       state: {
         ...state,
         kebi: state.kebi + 1,
-        sangzi: state.sangzi + SANGZI_PER_WIN,
-        homeRepair: Math.min(100, state.homeRepair + HOME_REPAIR_PER_WIN),
+        sangzi: availableSangzi - sangziConsumed,
         winStreak: state.winStreak + 1,
         loseStreak: 0,
       },
       lastBattleResult: result,
+      settlement: {
+        won: true,
+        kebiGained: 1,
+        sangziGained,
+        sangziConsumed,
+        homeRepairBefore,
+        homeRepairGained: homeRepairAfter - homeRepairBefore,
+        homeRepairAfter,
+        survivalLost: 0,
+      },
     };
   }
 
@@ -34,6 +52,33 @@ export function settleStage(
       loseStreak: state.loseStreak + 1,
     },
     lastBattleResult: result,
+    settlement: {
+      won: false,
+      kebiGained: 0,
+      sangziGained: 0,
+      sangziConsumed: 0,
+      homeRepairBefore: state.homeRepair,
+      homeRepairGained: 0,
+      homeRepairAfter: state.homeRepair,
+      survivalLost: 1,
+    },
+  };
+}
+
+/** Apply pending home repair after the victory cinematic (board swaps here). */
+export function applyHomeRepairFromSettlement(
+  snapshot: GameSnapshot,
+): GameSnapshot {
+  const settlement = snapshot.settlement;
+  if (!settlement?.won) return snapshot;
+  if (snapshot.state.homeRepair >= settlement.homeRepairAfter) return snapshot;
+
+  return {
+    ...snapshot,
+    state: {
+      ...snapshot.state,
+      homeRepair: settlement.homeRepairAfter,
+    },
   };
 }
 
@@ -78,8 +123,4 @@ export function resolveProgression(snapshot: GameSnapshot): GameSnapshot {
   };
 }
 
-export function homeRepairStage(homeRepair: number): "ruined" | "repairing" | "renewed" {
-  if (homeRepair < 34) return "ruined";
-  if (homeRepair < 67) return "repairing";
-  return "renewed";
-}
+export { homeRepairVisualStage as homeRepairStage } from "@/data/balance";

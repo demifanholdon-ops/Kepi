@@ -24,6 +24,9 @@ type UnitDrawJob = {
   hpRatio: number;
   showHpBar: boolean;
   preview: boolean;
+  motionDx?: number;
+  motionDy?: number;
+  hitFlash?: number;
 };
 
 function loadPortrait(
@@ -185,19 +188,24 @@ function drawUnit(
     hpRatio,
     showHpBar,
     preview,
+    motionDx = 0,
+    motionDy = 0,
+    hitFlash = 0,
   } = job;
   const spriteHeight = cellSize * UNIT_SPRITE_HEIGHT_RATIO;
   const feetY = y + cellSize * UNIT_FEET_OFFSET_RATIO;
+  const drawXBase = x + motionDx;
+  const feetYBase = feetY + motionDy;
 
-  drawFootShadow(ctx, x, feetY, cellSize, preview ? 0.18 : 0.28);
+  drawFootShadow(ctx, drawXBase, feetYBase, cellSize, preview ? 0.18 : 0.28);
   if (preview) {
-    drawPreviewRing(ctx, x, feetY, cellSize, stroke);
+    drawPreviewRing(ctx, drawXBase, feetYBase, cellSize, stroke);
   }
   if (hovered) {
-    drawFootGlow(ctx, x, feetY, cellSize, stroke, 0.62);
-    drawHoverRing(ctx, x, feetY, cellSize, stroke);
+    drawFootGlow(ctx, drawXBase, feetYBase, cellSize, stroke, 0.62);
+    drawHoverRing(ctx, drawXBase, feetYBase, cellSize, stroke);
   } else if (selected) {
-    drawFootGlow(ctx, x, feetY, cellSize, stroke);
+    drawFootGlow(ctx, drawXBase, feetYBase, cellSize, stroke);
   }
 
   const portraitImg = loadPortrait(cache, portrait, placeholder, onLoad);
@@ -209,24 +217,33 @@ function drawUnit(
   if (portraitImg) {
     const aspect = portraitImg.naturalWidth / portraitImg.naturalHeight || 0.75;
     const spriteWidth = spriteHeight * aspect;
-    const drawX = x - spriteWidth / 2;
-    const drawY = feetY - spriteHeight;
+    const drawX = drawXBase - spriteWidth / 2;
+    const drawY = feetYBase - spriteHeight;
 
     ctx.drawImage(portraitImg, drawX, drawY, spriteWidth, spriteHeight);
+
+    if (hitFlash > 0.02) {
+      ctx.globalAlpha = hitFlash * 0.55;
+      ctx.fillStyle = "#fff5e6";
+      ctx.fillRect(drawX, drawY, spriteWidth, spriteHeight);
+      ctx.globalAlpha = hitFlash * 0.35;
+      ctx.fillStyle = "#e63946";
+      ctx.fillRect(drawX, drawY, spriteWidth, spriteHeight);
+    }
 
     const barY = drawY - cellSize * 0.12;
     if (showHpBar) {
       ctx.globalAlpha = 1;
-      drawHpBar(ctx, x, barY, cellSize, hpRatio);
+      drawHpBar(ctx, drawXBase, barY, cellSize, hpRatio);
     }
     ctx.restore();
     return;
   }
 
-  drawPlaceholder(ctx, x, feetY, cellSize, label, stroke);
+  drawPlaceholder(ctx, drawXBase, feetYBase, cellSize, label, stroke);
   if (showHpBar) {
     ctx.globalAlpha = 1;
-    drawHpBar(ctx, x, feetY - cellSize * 1.55, cellSize, hpRatio);
+    drawHpBar(ctx, drawXBase, feetYBase - cellSize * 1.55, cellSize, hpRatio);
   }
   ctx.restore();
 }
@@ -252,6 +269,7 @@ export function renderUnitsLayer(
     const pos = resolveAllyBoardPosition(piece, index);
     const { x, y } = boardToPixel(pos, state.metrics);
     const meta = PIECE_VISUALS[piece.type];
+    const motion = state.unitMotionPx[piece.id];
     jobs.push({
       id: piece.id,
       x,
@@ -269,6 +287,9 @@ export function renderUnitsLayer(
       hpRatio: piece.hp / piece.maxHp,
       showHpBar,
       preview: false,
+      motionDx: motion?.dx ?? 0,
+      motionDy: motion?.dy ?? 0,
+      hitFlash: state.hitFlash[piece.id] ?? 0,
     });
   });
 
@@ -280,6 +301,7 @@ export function renderUnitsLayer(
     const pos = resolveEnemyBoardPosition(enemy, index, state.enemies.length);
     const { x, y } = boardToPixel(pos, state.metrics);
     const meta = ENEMY_VISUALS[enemy.type];
+    const motion = state.unitMotionPx[enemy.id];
     jobs.push({
       id: enemy.id,
       x,
@@ -294,6 +316,9 @@ export function renderUnitsLayer(
       hpRatio: enemy.hp / enemy.maxHp,
       showHpBar: showHpBar && !enemyPreview,
       preview: enemyPreview,
+      motionDx: motion?.dx ?? 0,
+      motionDy: motion?.dy ?? 0,
+      hitFlash: state.hitFlash[enemy.id] ?? 0,
     });
   });
 

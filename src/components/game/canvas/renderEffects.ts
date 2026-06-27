@@ -7,7 +7,7 @@ import {
   type BoardMetrics,
 } from "@/lib/game/boardLayout";
 import { loadCachedImage, type ImageCache } from "@/lib/game/imageCache";
-import type { EffectFlash } from "./types";
+import type { EffectFlash, CanvasRenderState } from "./types";
 
 function resolvePosition(
   unitId: string,
@@ -49,7 +49,7 @@ export function buildBattleEffects(
     if (!pos) continue;
 
     const age = tick - i - 1;
-    const fade = Math.max(0.25, 1 - age * 0.18);
+    const fade = Math.max(0.2, 1 - age * 0.28);
 
     effects.push({
       id: `${event.sourceId}_${event.targetId}_${i}`,
@@ -100,4 +100,38 @@ export function renderEffectsLayer(
   }
 
   ctx.globalAlpha = 1;
+}
+
+function drawAttackSlashes(
+  ctx: CanvasRenderingContext2D,
+  slashes: CanvasRenderState["attackSlashes"],
+): void {
+  for (const slash of slashes) {
+    ctx.save();
+    ctx.globalAlpha = slash.alpha;
+    ctx.strokeStyle = "#ffd166";
+    ctx.lineWidth = slash.width;
+    ctx.lineCap = "round";
+    ctx.shadowColor = "rgba(255, 209, 102, 0.65)";
+    ctx.shadowBlur = slash.width * 2.2;
+    ctx.beginPath();
+    ctx.moveTo(slash.sx, slash.sy);
+    ctx.lineTo(slash.tx, slash.ty);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+export function renderBattleFxLayer(
+  ctx: CanvasRenderingContext2D,
+  state: Pick<CanvasRenderState, "effects" | "attackSlashes" | "metrics" | "imageCache" | "requestRepaint">,
+): void {
+  drawAttackSlashes(ctx, state.attackSlashes);
+  renderEffectsLayer(
+    ctx,
+    state.effects,
+    state.metrics,
+    state.imageCache,
+    state.requestRepaint,
+  );
 }

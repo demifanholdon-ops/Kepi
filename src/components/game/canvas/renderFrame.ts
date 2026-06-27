@@ -4,7 +4,7 @@ import {
 } from "./renderAtmosphere";
 import { renderBackgroundLayer } from "./renderBackground";
 import { renderBoardLayer } from "./renderBoard";
-import { buildBattleEffects, renderEffectsLayer } from "./renderEffects";
+import { buildBattleEffects, renderBattleFxLayer } from "./renderEffects";
 import { renderPrepFxLayer } from "./renderPrepFx";
 import { renderUnitsLayer } from "./renderPieces";
 import { readCanvasTheme, type CanvasRenderState } from "./types";
@@ -21,13 +21,7 @@ export function renderGameCanvas(
   renderSceneAtmosphere(ctx, state);
   renderBoardLayer(ctx, state, theme);
   renderUnitsLayer(ctx, state, theme);
-  renderEffectsLayer(
-    ctx,
-    state.effects,
-    state.metrics,
-    state.imageCache,
-    state.requestRepaint,
-  );
+  renderBattleFxLayer(ctx, state);
   renderPrepFxLayer(ctx, state, state.prepFx);
   renderForegroundAtmosphere(ctx, state);
 }

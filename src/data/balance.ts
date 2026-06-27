@@ -34,14 +34,19 @@ export const BALANCE = {
   },
 
   battle: {
-    tickMs: 100,
+    tickMs: 8,
     maxMs: 40_000,
+    ticksPerFrameCap: 22,
     prepTimeSec: 30,
     damageFormula: "atk * 100 / (100 + armor)" as const,
+    /** Tuning knob — lowers enemy HP so typical lineups finish before the 40s cap. */
+    enemyHpFactor: 0.55,
+    /** Tuning knob — global combat damage multiplier. */
+    damageMultiplier: 1.75,
   },
 
   progression: {
-    sangziPerWin: 10,
+    sangziPerWin: 1,
     homeRepairPerWin: 16,
     starHpAtkMultiplier: 2,
   },
@@ -73,27 +78,51 @@ export const BALANCE = {
 
 export const TULOU_VISUAL_STAGES: readonly TulouVisualStage[] = [
   {
-    id: "ruined",
+    id: "stage1",
     minRepair: 0,
-    maxRepair: 33,
+    maxRepair: 15,
     label: "破败",
     boardAsset: "/images/board/kepi_tulou-stage1-broken.png",
-    transitionAsset: "/images/board/kepi_tulou-transition-1-2.png",
+    transitionAsset: null,
   },
   {
-    id: "repairing",
-    minRepair: 34,
-    maxRepair: 66,
-    label: "修缮",
-    boardAsset: "/images/board/kepi_tulou-stage2-repair.png",
-    transitionAsset: "/images/board/kepi_tulou-transition-2-3.png",
+    id: "stage2",
+    minRepair: 16,
+    maxRepair: 31,
+    label: "井台复水",
+    boardAsset: "/images/board/kepi_tulou-stage2-well.png",
+    transitionAsset: null,
   },
   {
-    id: "renewed",
-    minRepair: 67,
+    id: "stage3",
+    minRepair: 32,
+    maxRepair: 47,
+    label: "墙门修缮",
+    boardAsset: "/images/board/kepi_tulou-stage3-gate.png",
+    transitionAsset: null,
+  },
+  {
+    id: "stage4",
+    minRepair: 48,
+    maxRepair: 63,
+    label: "屋瓦补齐",
+    boardAsset: "/images/board/kepi_tulou-stage4-roof.png",
+    transitionAsset: null,
+  },
+  {
+    id: "stage5",
+    minRepair: 64,
+    maxRepair: 79,
+    label: "祠堂点灯",
+    boardAsset: "/images/board/kepi_tulou-stage5-lanterns.png",
+    transitionAsset: null,
+  },
+  {
+    id: "stage6",
+    minRepair: 80,
     maxRepair: 100,
-    label: "翻新",
-    boardAsset: "/images/board/kepi_tulou-stage3-renewed.png",
+    label: "桑梓焕新",
+    boardAsset: "/images/board/kepi_tulou-stage6-renewed.png",
     transitionAsset: null,
   },
 ] as const;
@@ -109,9 +138,13 @@ export function streakBonus(winStreak: number, loseStreak: number): number {
 export function homeRepairVisualStage(
   homeRepair: number,
 ): TulouVisualStage["id"] {
-  if (homeRepair < 34) return "ruined";
-  if (homeRepair < 67) return "repairing";
-  return "renewed";
+  const r = Math.max(0, Math.min(100, homeRepair));
+  if (r < 16) return "stage1";
+  if (r < 32) return "stage2";
+  if (r < 48) return "stage3";
+  if (r < 64) return "stage4";
+  if (r < 80) return "stage5";
+  return "stage6";
 }
 
 export function tulouStageForRepair(homeRepair: number): TulouVisualStage {

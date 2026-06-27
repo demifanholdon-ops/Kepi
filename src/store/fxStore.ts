@@ -4,6 +4,7 @@ export type PrepFxKind =
   | "shop_refresh"
   | "star_up"
   | "letter_pickup"
+  | "repair_home"
   | "buy_piece"
   | "population_up";
 
