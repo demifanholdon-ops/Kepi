@@ -48,3 +48,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+
+# generated assets (keep source scripts, ignore generated outputs)
+scripts/__pycache__/
