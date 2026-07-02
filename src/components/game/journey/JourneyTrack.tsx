@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { ASSET_MANIFEST } from "@/data/assets";
 import { JOURNEY } from "@/data/journey";
-import { journeyNodeIcon, tulouExteriorForRepair } from "@/lib/game/journeyUi";
+import { journeyNodeIconForNode } from "@/lib/game/journeyUi";
 import { cn } from "@/lib/utils";
 import { GameIcon } from "@/components/game/ui";
 
@@ -27,6 +27,7 @@ export function JourneyNodeTrack({
       {JOURNEY.nodes.map((node, index) => (
         <JourneyNodeMarker
           key={node.id}
+          nodeId={node.id}
           type={node.type}
           done={index < journeyIndex}
           current={index === journeyIndex}
@@ -37,24 +38,53 @@ export function JourneyNodeTrack({
   );
 }
 
+export function JourneyNodeTrackVertical({ journeyIndex }: { journeyIndex: number }) {
+  return (
+    <div
+      className="kepi-journey-track-vertical flex w-full flex-col items-stretch gap-0.5 py-0.5"
+      role="list"
+      aria-label="归乡路线"
+    >
+      {JOURNEY.nodes.map((node, index) => (
+        <JourneyNodeMarker
+          key={node.id}
+          nodeId={node.id}
+          type={node.type}
+          done={index < journeyIndex}
+          current={index === journeyIndex}
+          label={node.label}
+          vertical
+        />
+      ))}
+    </div>
+  );
+}
+
 function JourneyNodeMarker({
+  nodeId,
   type,
   done,
   current,
   label,
+  vertical = false,
 }: {
-  type: Parameters<typeof journeyNodeIcon>[0];
+  nodeId: string;
+  type: Parameters<typeof journeyNodeIconForNode>[0]["type"];
   done: boolean;
   current: boolean;
   label: string;
+  vertical?: boolean;
 }) {
-  const icon = journeyNodeIcon(type);
+  const icon = journeyNodeIconForNode({ id: nodeId, type });
 
   return (
     <div
       role="listitem"
       className={cn(
-        "kepi-journey-node relative flex min-w-[2rem] flex-1 flex-col items-center gap-0.5",
+        "kepi-journey-node relative flex shrink-0 gap-0.5",
+        vertical
+          ? "min-h-[2rem] w-full items-center px-0.5"
+          : "min-w-[2rem] flex-1 flex-col items-center",
         done && "kepi-journey-node--done",
         current && "kepi-journey-node--current",
       )}
@@ -62,25 +92,29 @@ function JourneyNodeMarker({
       aria-label={label}
       title={label}
     >
-      <div className="relative flex h-7 w-7 items-center justify-center sm:h-8 sm:w-8">
+      <div
+        className={cn(
+          "relative flex shrink-0 items-center justify-center",
+          vertical ? "h-8 w-8" : "h-7 w-7 sm:h-8 sm:w-8",
+        )}
+      >
+        {current ? (
+          <div
+            className="kepi-journey-node-ring pointer-events-none absolute inset-0 flex items-center justify-center"
+            aria-hidden
+          >
+            {/* Decorative ring — native img avoids Next/Image wrapper offset */}
+            <img src={UI.journeyNodeCurrent} alt="" width={36} height={36} />
+          </div>
+        ) : null}
         <GameIcon
           src={icon}
-          size={28}
+          size={vertical ? 24 : 28}
           className={cn(
             "relative z-[1] transition-opacity",
             !done && !current && "opacity-45 grayscale-[0.35]",
           )}
         />
-        {current ? (
-          <Image
-            src={UI.journeyNodeCurrent}
-            alt=""
-            width={36}
-            height={36}
-            className="kepi-journey-node-ring pointer-events-none absolute inset-1/2 h-[130%] w-[130%] -translate-x-1/2 -translate-y-1/2 object-contain"
-            aria-hidden
-          />
-        ) : null}
         {done ? (
           <Image
             src={UI.journeyNodeDone}
@@ -92,7 +126,20 @@ function JourneyNodeMarker({
           />
         ) : null}
       </div>
-      {current ? (
+      {vertical ? (
+        <span
+          className={cn(
+            "min-w-0 flex-1 truncate text-left text-[0.5rem] leading-tight sm:text-[0.5625rem]",
+            current
+              ? "font-semibold text-kepi-ink"
+              : done
+                ? "text-kepi-ink-muted"
+                : "text-kepi-ink/45",
+          )}
+        >
+          {label}
+        </span>
+      ) : current ? (
         <span className="kepi-journey-node-label hidden max-w-[3.25rem] truncate text-center text-[0.5rem] leading-tight text-kepi-ink sm:block">
           {label}
         </span>
@@ -101,36 +148,3 @@ function JourneyNodeMarker({
   );
 }
 
-export function JourneyRepairBar({ homeRepair }: { homeRepair: number }) {
-  const exterior = tulouExteriorForRepair(homeRepair);
-  const width = Math.min(100, Math.max(0, homeRepair));
-
-  return (
-    <div className="relative h-4 overflow-hidden rounded-md sm:h-5">
-      <Image
-        src={UI.journeyHomeRepairBar}
-        alt=""
-        fill
-        className="object-cover opacity-90"
-        sizes="320px"
-      />
-      <Image
-        src={exterior}
-        alt=""
-        width={72}
-        height={24}
-        className="pointer-events-none absolute bottom-0 left-1 z-[1] h-full w-auto object-contain object-left opacity-35"
-        aria-hidden
-      />
-      <div
-        className="kepi-journey-repair-fill absolute inset-y-0 left-0 z-[2] rounded-sm bg-kepi-accent/75 transition-[width] duration-500 ease-out"
-        style={{ width: `${width}%` }}
-        role="progressbar"
-        aria-valuenow={width}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label="家园修复"
-      />
-    </div>
-  );
-}

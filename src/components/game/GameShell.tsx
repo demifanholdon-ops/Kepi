@@ -12,17 +12,15 @@ import { BattleHud } from "./BattleHud";
 import { CampfirePanel } from "./CampfirePanel";
 import { EndingPhase } from "./EndingPhase";
 import { GameCanvas } from "./GameCanvas";
+import { GameChrome } from "./GameChrome";
 import { GameDialogs } from "./GameDialogs";
 import { isNarrativePhase } from "@/lib/game/journeyUi";
 import { isPrepInteractive } from "@/lib/game/prepUi";
-import { JourneyScroll } from "./JourneyScroll";
-import { JourneyCommandBar } from "./JourneyCommandBar";
 import { OpeningBuffLayer } from "./OpeningBuffLayer";
 import { AssassinWarningLayer } from "./AssassinWarningLayer";
+import { BattleFooter } from "./BattleFooter";
 import { LeafFallLayer } from "./LeafFallLayer";
 import { PawnShopPanel } from "./PawnShopPanel";
-import { BenchStrip } from "./ShopStrip";
-import { PrepDock } from "./PrepDock";
 import { PrepGuideLayer } from "./PrepGuideLayer";
 import { StageBriefOverlay } from "./StageBriefOverlay";
 import { SettingsMenu } from "./SettingsMenu";
@@ -45,7 +43,6 @@ export function GameShell() {
   const { phase, state } = snapshot;
   const narrativeShell = isNarrativePhase(phase);
   const prepActive = phase === "prep" && isPrepInteractive(prepSubview);
-  const showCommandBar = phase === "prep" || phase === "settlement";
 
   usePrepNodeEnter();
 
@@ -110,16 +107,8 @@ export function GameShell() {
   }
 
   return (
-    <div className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-kepi-scene">
-      <div className="kepi-scene-glow" aria-hidden />
-
-      {showCommandBar ? (
-        <JourneyCommandBar dimmed={phase === "prep" && !prepActive} />
-      ) : (
-        <JourneyScroll flow />
-      )}
-
-      <div className="kepi-scene-vignette relative min-h-0 flex-1">
+    <>
+      <GameChrome prepActive={prepActive} railDimmed={phase === "prep" && !prepActive}>
         <GameCanvas
           snapshot={snapshot}
           selectedPieceId={selectedPieceId}
@@ -132,28 +121,22 @@ export function GameShell() {
             moveSelected(position);
           }}
         />
-        {phase === "prep" ? (
-          <>
-            <BenchStrip />
-            {prepActive ? <PrepGuideLayer /> : null}
-          </>
-        ) : null}
+        {phase === "prep" && prepActive ? <PrepGuideLayer /> : null}
         <BattleHud />
         <LeafFallLayer />
         <AssassinWarningLayer />
         <OpeningBuffLayer />
         <BattleOverlay />
+        <BattleFooter />
         <SettlementOverlay />
-        <UnitInspectOverlay />
-        <PieceInspectTooltip />
-      </div>
+        {phase === "prep" ? <StageBriefOverlay /> : null}
+      </GameChrome>
 
-      {prepActive ? <PrepDock /> : null}
-      {phase === "prep" ? <StageBriefOverlay /> : null}
-
+      <UnitInspectOverlay />
+      <PieceInspectTooltip />
       <SettingsMenu />
       <ToastHost />
       <GameDialogs />
-    </div>
+    </>
   );
 }

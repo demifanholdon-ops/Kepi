@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
 import { isPrepInteractive } from "@/lib/game/prepUi";
@@ -12,71 +12,63 @@ import {
 } from "@/lib/game/prepGuide";
 import { cn } from "@/lib/utils";
 
-const STEP_LABELS: Record<1 | 2 | 3, string> = {
-  1: "购水客",
-  2: "落后排",
-  3: "开战",
-};
+const STEPS = [
+  { id: 1 as const, label: "购水客" },
+  { id: 2 as const, label: "落后排" },
+  { id: 3 as const, label: "开战" },
+];
 
-export function PrepGuideStepBar({ compact = false }: { compact?: boolean }) {
+export function PrepGuideBanner() {
   const nodeId = useGameStore((state) => state.snapshot.state.currentNodeId);
   const prepGuideStep = useUIStore((state) => state.prepGuideStep);
   const prepSubview = useUIStore((state) => state.prepSubview);
-  const skipPrepGuide = useUIStore((state) => state.skipPrepGuide);
 
   if (!isPrepInteractive(prepSubview) || !prepGuideEnabled(nodeId, prepGuideStep)) {
     return null;
   }
 
-  if (compact) {
-    return (
-      <ol className="kepi-prep-guide-inline flex items-center gap-0.5" aria-label="首战斗引导">
-        {([1, 2, 3] as const).map((step) => (
-          <li
-            key={step}
-            className={cn(
-              "kepi-prep-guide-dot h-2 w-2 rounded-full",
-              prepGuideStep === step && "kepi-prep-guide-dot--active",
-              typeof prepGuideStep === "number" && prepGuideStep > step && "kepi-prep-guide-dot--done",
-            )}
-            title={STEP_LABELS[step]}
-          />
-        ))}
-      </ol>
-    );
-  }
+  const prompt = prepGuidePrompt(prepGuideStep);
 
   return (
-    <div className="kepi-prep-guide-bar mb-2">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[0.6rem] font-bold tracking-wide text-kepi-ink-muted uppercase">
-          首战斗引导
-        </p>
-        <button
-          type="button"
-          className="text-[0.6rem] text-kepi-ink-muted underline-offset-2 transition hover:text-kepi-ink hover:underline"
-          onClick={skipPrepGuide}
-        >
-          我已熟悉
-        </button>
+    <div
+      className="kepi-prep-guide-banner pointer-events-none min-w-0 flex-1"
+      role="region"
+      aria-label="首战斗引导"
+    >
+      <div className="kepi-prep-guide-banner-inner pointer-events-auto flex items-center gap-2 sm:gap-3">
+        <ol className="flex shrink-0 items-center gap-0.5 sm:gap-1" aria-label="引导步骤">
+          {STEPS.map((step, index) => {
+            const done = typeof prepGuideStep === "number" && prepGuideStep > step.id;
+            const active = prepGuideStep === step.id;
+
+            return (
+              <li key={step.id} className="flex items-center gap-0.5 sm:gap-1">
+                {index > 0 ? (
+                  <span className="kepi-prep-guide-banner-sep text-[0.55rem]" aria-hidden>
+                    ·
+                  </span>
+                ) : null}
+                <span
+                  className={cn(
+                    "kepi-prep-guide-banner-step whitespace-nowrap text-[0.625rem] font-medium sm:text-[0.6875rem]",
+                    active && "kepi-prep-guide-banner-step--active",
+                    done && "kepi-prep-guide-banner-step--done",
+                  )}
+                  aria-current={active ? "step" : undefined}
+                >
+                  {step.label}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+
+        {prompt ? (
+          <p className="kepi-prep-guide-banner-prompt min-w-0 flex-1 truncate text-[0.625rem] leading-snug sm:text-[0.6875rem]">
+            {prompt}
+          </p>
+        ) : null}
       </div>
-      <ol className="mt-1.5 flex items-center gap-1">
-        {([1, 2, 3] as const).map((step) => (
-          <li
-            key={step}
-            className={cn(
-              "kepi-prep-guide-step flex-1 rounded-md px-2 py-1 text-center text-[0.58rem] font-medium",
-              prepGuideStep === step && "kepi-prep-guide-step--active",
-              typeof prepGuideStep === "number" && prepGuideStep > step && "kepi-prep-guide-step--done",
-            )}
-          >
-            {STEP_LABELS[step]}
-          </li>
-        ))}
-      </ol>
-      <p className="mt-1.5 text-[0.6875rem] leading-snug text-kepi-ink-muted">
-        {prepGuidePrompt(prepGuideStep)}
-      </p>
     </div>
   );
 }
@@ -88,6 +80,8 @@ export function PrepGuideLayer() {
   const prepGuideStep = useUIStore((state) => state.prepGuideStep);
   const prepSubview = useUIStore((state) => state.prepSubview);
   const setPrepGuideStep = useUIStore((state) => state.setPrepGuideStep);
+  const pushToast = useUIStore((state) => state.pushToast);
+  const step3ToastShown = useRef(false);
 
   useEffect(() => {
     if (phase !== "prep" || !isPrepInteractive(prepSubview)) return;
@@ -98,6 +92,16 @@ export function PrepGuideLayer() {
     }
   }, [phase, prepSubview, nodeId, prepGuideStep, board, setPrepGuideStep]);
 
+  useEffect(() => {
+    if (prepGuideStep !== 3) {
+      step3ToastShown.current = false;
+      return;
+    }
+    if (!prepGuideEnabled(nodeId, prepGuideStep) || step3ToastShown.current) return;
+    step3ToastShown.current = true;
+    pushToast("水客已在后排，可以开战了", "default");
+  }, [prepGuideStep, nodeId, pushToast]);
+
   if (
     phase !== "prep" ||
     !isPrepInteractive(prepSubview) ||
@@ -107,18 +111,17 @@ export function PrepGuideLayer() {
   }
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-[22]" aria-hidden>
-      {prepGuideStep === 2 ? <BackRowHighlight /> : null}
-    </div>
+    <>
+      <div className="pointer-events-none absolute inset-0 z-[22]" aria-hidden>
+        {prepGuideStep === 2 ? <BackRowHighlight /> : null}
+      </div>
+    </>
   );
 }
 
 function BackRowHighlight() {
   return (
-    <div
-      className="kepi-prep-guide-backrow pointer-events-none absolute"
-      aria-hidden
-    />
+    <div className="kepi-prep-guide-backrow pointer-events-none absolute" aria-hidden />
   );
 }
 

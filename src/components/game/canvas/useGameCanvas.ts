@@ -15,7 +15,11 @@ import {
   homeRepairThemeStage,
   PIECE_VISUALS,
 } from "@/lib/game/assets";
-import { computeBoardMetrics, allyBottomRatioForPrep, pixelToBoard } from "@/lib/game/boardLayout";
+import {
+  computeBoardMetrics,
+  boardMetricsOptionsForPhase,
+  pixelToBoard,
+} from "@/lib/game/boardLayout";
 import {
   buildAttackSlashes,
   collectNewAttackPulses,
@@ -224,12 +228,11 @@ export function useGameCanvas(
     const now = performance.now();
     const current = useGameStore.getState().snapshot;
     snapshotRef.current = current;
-    const metrics = computeBoardMetrics(rect.width, rect.height, {
-      allyBottomRatio:
-        current.phase === "prep"
-          ? allyBottomRatioForPrep(useUIStore.getState().prepDockExpanded)
-          : undefined,
-    });
+    const metrics = computeBoardMetrics(
+      rect.width,
+      rect.height,
+      boardMetricsOptionsForPhase(current.phase, useUIStore.getState().prepDockExpanded),
+    );
     const tulouStage = homeRepairThemeStage(current.state.homeRepair);
     const { allies, enemies } = combatUnitsFromSnapshot(current);
     const battleEvents =
@@ -445,12 +448,11 @@ export function useGameCanvas(
       const x = clientX - rect.left;
       const y = clientY - rect.top;
       const current = snapshotRef.current;
-      const metrics = computeBoardMetrics(rect.width, rect.height, {
-      allyBottomRatio:
-        current.phase === "prep"
-          ? allyBottomRatioForPrep(useUIStore.getState().prepDockExpanded)
-          : undefined,
-    });
+      const metrics = computeBoardMetrics(
+        rect.width,
+        rect.height,
+        boardMetricsOptionsForPhase(current.phase, useUIStore.getState().prepDockExpanded),
+      );
       const { allies, enemies } = combatUnitsFromSnapshot(current);
 
       const placing =
@@ -547,12 +549,11 @@ export function useGameCanvas(
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       const current = snapshotRef.current;
-      const metrics = computeBoardMetrics(rect.width, rect.height, {
-        allyBottomRatio:
-          current.phase === "prep"
-            ? allyBottomRatioForPrep(useUIStore.getState().prepDockExpanded)
-            : undefined,
-      });
+      const metrics = computeBoardMetrics(
+        rect.width,
+        rect.height,
+        boardMetricsOptionsForPhase(current.phase, useUIStore.getState().prepDockExpanded),
+      );
 
       if (current.phase !== "prep") return;
 

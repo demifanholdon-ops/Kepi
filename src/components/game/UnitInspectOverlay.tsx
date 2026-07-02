@@ -43,7 +43,7 @@ export function UnitInspectOverlay() {
 
   return (
     <div
-      className="pointer-events-none fixed z-40"
+      className="pointer-events-none fixed z-[45]"
       style={{
         left: x,
         top: anchorY,

@@ -11,7 +11,7 @@ import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
 import { GameIcon, WoodButton, WoodPanel } from "@/components/game/ui";
-import { JourneyNodeTrack, JourneyRepairBar } from "@/components/game/journey/JourneyTrack";
+import { JourneyNodeTrack } from "@/components/game/journey/JourneyTrack";
 
 const UI = ASSET_MANIFEST.ui;
 
@@ -109,10 +109,6 @@ export function JourneyCommandBar({ dimmed = false }: JourneyCommandBarProps) {
 
         <div className="mt-2">
           <JourneyNodeTrack journeyIndex={state.journeyIndex} />
-        </div>
-
-        <div className="mt-1.5">
-          <JourneyRepairBar homeRepair={state.homeRepair} />
         </div>
 
         {phase === "prep" || phase === "settlement" ? (

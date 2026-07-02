@@ -12,18 +12,24 @@ export const BOARD_ROWS = 5;
  */
 export const BOARD_ANCHOR = {
   centerXRatio: 0.5,
-  /** Default — battle / settlement with minimal bottom chrome. */
+  /** Default fallback — kept for tests and non-combat views. */
   allyBottomRatio: 0.52,
-  /** Prep with collapsed bottom dock — board uses more vertical space. */
-  prepAllyBottomCollapsed: 0.58,
-  /** Prep with expanded shop dock — lift ally rows above the dock. */
-  prepAllyBottomExpanded: 0.49,
+  /** Prep phase — fixed anchor; UI chrome floats above canvas. */
+  prepAllyBottomRatio: 0.42,
+  /** @deprecated Use prepAllyBottomRatio — kept for callers migrating off dock toggle. */
+  prepAllyBottomCollapsed: 0.42,
+  /** @deprecated Use prepAllyBottomRatio — kept for callers migrating off dock toggle. */
+  prepAllyBottomExpanded: 0.42,
+  /** Battle / settlement — board wider and lower to fill the stage. */
+  battleAllyBottomRatio: 0.62,
+  battleBoardWidthRatio: 0.62,
   boardWidthRatio: 0.44,
   boardHeightRatio: 0.34,
 } as const;
 
 export type BoardMetricsOptions = {
   allyBottomRatio?: number;
+  boardWidthRatio?: number;
 };
 
 export type BoardMetrics = {
@@ -41,8 +47,9 @@ export function computeBoardMetrics(
   options?: BoardMetricsOptions,
 ): BoardMetrics {
   const allyBottomRatio = options?.allyBottomRatio ?? BOARD_ANCHOR.allyBottomRatio;
+  const boardWidthRatio = options?.boardWidthRatio ?? BOARD_ANCHOR.boardWidthRatio;
   const cellSize = Math.min(
-    (width * BOARD_ANCHOR.boardWidthRatio) / BOARD_COLS,
+    (width * boardWidthRatio) / BOARD_COLS,
     (height * BOARD_ANCHOR.boardHeightRatio) / BOARD_ROWS,
   );
 
@@ -60,10 +67,37 @@ export function computeBoardMetrics(
   };
 }
 
-export function allyBottomRatioForPrep(prepDockExpanded: boolean): number {
-  return prepDockExpanded
-    ? BOARD_ANCHOR.prepAllyBottomExpanded
-    : BOARD_ANCHOR.prepAllyBottomCollapsed;
+export function allyBottomRatioForPrep(_prepDockExpanded?: boolean): number {
+  return BOARD_ANCHOR.prepAllyBottomRatio;
+}
+
+/** Board anchors for combat phases (battle / settlement) — wider, lower board. */
+export function battleBoardAnchors(): {
+  allyBottomRatio: number;
+  boardWidthRatio: number;
+} {
+  return {
+    allyBottomRatio: BOARD_ANCHOR.battleAllyBottomRatio,
+    boardWidthRatio: BOARD_ANCHOR.battleBoardWidthRatio,
+  };
+}
+
+/**
+ * Resolve board anchor options for a given phase.
+ * Prep uses the dock-expanded-dependent anchor; combat (battle/settlement)
+ * uses the wider, lower battle anchor; other phases fall back to defaults.
+ */
+export function boardMetricsOptionsForPhase(
+  phase: string,
+  prepDockExpanded: boolean,
+): BoardMetricsOptions | undefined {
+  if (phase === "prep") {
+    return { allyBottomRatio: allyBottomRatioForPrep(prepDockExpanded) };
+  }
+  if (phase === "battle" || phase === "settlement") {
+    return battleBoardAnchors();
+  }
+  return undefined;
 }
 
 export function boardToPixel(

@@ -117,7 +117,6 @@ export const ASSET_MANIFEST = {
     journeyNodeCampfire: "/images/ui/kepi_journey-node-campfire.png",
     journeyNodeCurrent: "/images/ui/kepi_journey-node-current.png",
     journeyNodeDone: "/images/ui/kepi_journey-node-done.png",
-    journeyHomeRepairBar: "/images/ui/kepi_journey-home-repair-bar.png",
     pawnKebi: "/images/ui/kepi_icon_pawn-kebi.png",
     bloodDebt: "/images/ui/kepi_icon_blood-debt.png",
     openingNote: "/images/ui/kepi_icon_opening-note.png",

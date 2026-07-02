@@ -1,4 +1,6 @@
 import { ASSET_MANIFEST } from "@/data/assets";
+import { levelInteractionForNode } from "@/data/levelInteractions";
+import { ENEMY_VISUALS } from "@/lib/game/assets";
 import type { JourneyNodeType } from "@/types/journey";
 
 const UI = ASSET_MANIFEST.ui;
@@ -13,6 +15,20 @@ export function journeyNodeIcon(type: JourneyNodeType): string {
     case "campfire":
       return UI.journeyNodeCampfire;
   }
+}
+
+/** Per-node icon — battle nodes use the featured enemy portrait. */
+export function journeyNodeIconForNode(node: {
+  id: string;
+  type: JourneyNodeType;
+}): string {
+  if (node.type === "battle") {
+    const interaction = levelInteractionForNode(node.id);
+    if (interaction) {
+      return ENEMY_VISUALS[interaction.featuredEnemy].portrait;
+    }
+  }
+  return journeyNodeIcon(node.type);
 }
 
 /** Exterior tulou silhouette for the journey repair strip (33 / 66 / 99 tiers). */

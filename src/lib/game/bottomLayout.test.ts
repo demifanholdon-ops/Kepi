@@ -3,6 +3,7 @@ import {
   benchBottomRemForPrep,
   benchDockBottomOffset,
   BOTTOM_BENCH_CLEARANCE_REM,
+  BOTTOM_PREP_DOCK_EXPANDED_REM,
 } from "./bottomLayout";
 
 describe("bottomLayout", () => {
@@ -16,9 +17,9 @@ describe("bottomLayout", () => {
     expect(benchDockBottomOffset(0, 16, 22)).toBe("22rem");
   });
 
-  it("estimates more clearance when prep dock is expanded", () => {
-    const collapsed = benchBottomRemForPrep(false);
-    const expanded = benchBottomRemForPrep(true);
-    expect(expanded).toBeGreaterThan(collapsed);
+  it("reserves clearance for the fixed prep bottom dock", () => {
+    expect(benchBottomRemForPrep()).toBe(
+      BOTTOM_PREP_DOCK_EXPANDED_REM + BOTTOM_BENCH_CLEARANCE_REM,
+    );
   });
 });

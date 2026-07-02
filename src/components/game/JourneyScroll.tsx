@@ -6,7 +6,6 @@ import { JOURNEY, journeyNodeAt } from "@/data/journey";
 import {
   isJourneyScrollCompact,
   journeyNodeIcon,
-  tulouExteriorForRepair,
 } from "@/lib/game/journeyUi";
 import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
@@ -25,7 +24,7 @@ export function JourneyScroll({ flow = false }: JourneyScrollProps) {
   const snapshot = useGameStore((state) => state.snapshot);
   const setSettingsOpen = useUIStore((state) => state.setSettingsOpen);
   const prepSubview = useUIStore((state) => state.prepSubview);
-  const { journeyIndex, totalNodes, homeRepair, kebi, kebiThreshold, survival } =
+  const { journeyIndex, totalNodes, kebi, kebiThreshold, survival } =
     snapshot.state;
   const phase = snapshot.phase;
   const isCompact = isJourneyScrollCompact(phase);
@@ -141,7 +140,6 @@ export function JourneyScroll({ flow = false }: JourneyScrollProps) {
             </div>
           ) : null}
 
-          <JourneyRepairBar homeRepair={homeRepair} />
         </div>
       </div>
     </div>
@@ -208,40 +206,6 @@ function JourneyNodeMarker({
           {label}
         </span>
       ) : null}
-    </div>
-  );
-}
-
-function JourneyRepairBar({ homeRepair }: { homeRepair: number }) {
-  const exterior = tulouExteriorForRepair(homeRepair);
-  const width = Math.min(100, Math.max(0, homeRepair));
-
-  return (
-    <div className="relative mt-0.5 h-5 overflow-hidden rounded-md sm:h-6">
-      <Image
-        src={UI.journeyHomeRepairBar}
-        alt=""
-        fill
-        className="object-cover opacity-90"
-        sizes="320px"
-      />
-      <Image
-        src={exterior}
-        alt=""
-        width={72}
-        height={24}
-        className="pointer-events-none absolute bottom-0 left-1 z-[1] h-full w-auto object-contain object-left opacity-35"
-        aria-hidden
-      />
-      <div
-        className="kepi-journey-repair-fill absolute inset-y-0 left-0 z-[2] rounded-sm bg-kepi-accent/75 transition-[width] duration-500 ease-out"
-        style={{ width: `${width}%` }}
-        role="progressbar"
-        aria-valuenow={width}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label="家园修复"
-      />
     </div>
   );
 }

@@ -1,6 +1,10 @@
 import { BOARD_ANCHOR } from "./boardLayout";
+import {
+  JOURNEY_SIDE_RAIL_BENCH_GAP_REM,
+  JOURNEY_SIDE_RAIL_WIDTH_REM,
+} from "./sideRailLayout";
 
-/** Shared bottom stack heights for prep dock + bench positioning (rem). */
+/** @deprecated Bench floats inside stage grid cell; dock height no longer affects placement. */
 export const BOTTOM_SHOP_HEIGHT_REM = 10.5;
 /** Collapsed letter strip (header + narrative line + padding). */
 export const BOTTOM_LETTER_STRIP_REM = 5.5;
@@ -15,15 +19,12 @@ export const BENCH_DOCK_LEFT_RATIO = 0.05;
 /** Keep bench clear of the ally grid's left edge. */
 export const BENCH_DOCK_BOARD_GAP_RATIO = 0.02;
 
-/** Collapsed prep dock handle height (approx). */
+/** Fixed prep bottom dock height (approx). */
 export const BOTTOM_PREP_DOCK_COLLAPSED_REM = 3.25;
-export const BOTTOM_PREP_DOCK_EXPANDED_REM = 11;
+export const BOTTOM_PREP_DOCK_EXPANDED_REM = 16;
 
-export function benchBottomRemForPrep(dockExpanded: boolean): number {
-  return (
-    (dockExpanded ? BOTTOM_PREP_DOCK_EXPANDED_REM : BOTTOM_PREP_DOCK_COLLAPSED_REM) +
-    BOTTOM_BENCH_CLEARANCE_REM
-  );
+export function benchBottomRemForPrep(): number {
+  return BOTTOM_PREP_DOCK_EXPANDED_REM + BOTTOM_BENCH_CLEARANCE_REM;
 }
 
 export function benchDockBottomOffset(
@@ -38,14 +39,21 @@ export function benchDockBottomOffset(
   return `${fallbackBottomRem}rem`;
 }
 
-/** Pin the bench dock in the left gutter beside the ally board. */
-export function benchDockStyle(bottom: string): {
+/** Pin the bench dock beside the ally board, clear of the journey side rail. */
+export function benchDockStyle(
+  bottom: string,
+  options: { sideRailVisible?: boolean } = {},
+): {
   bottom: string;
   left: string;
   maxWidth: string;
 } {
+  const { sideRailVisible = true } = options;
   const boardLeftRatio =
     BOARD_ANCHOR.centerXRatio - BOARD_ANCHOR.boardWidthRatio / 2;
+  const railOffsetRem = sideRailVisible
+    ? JOURNEY_SIDE_RAIL_WIDTH_REM + JOURNEY_SIDE_RAIL_BENCH_GAP_REM
+    : 0;
   const maxWidthRatio = Math.max(
     0.16,
     boardLeftRatio - BENCH_DOCK_LEFT_RATIO - BENCH_DOCK_BOARD_GAP_RATIO,
@@ -53,7 +61,7 @@ export function benchDockStyle(bottom: string): {
 
   return {
     bottom,
-    left: `max(0.75rem, ${BENCH_DOCK_LEFT_RATIO * 100}%)`,
+    left: `max(calc(${railOffsetRem}rem + 0.375rem), calc(${railOffsetRem}rem + env(safe-area-inset-left)))`,
     maxWidth: `min(20rem, ${maxWidthRatio * 100}%)`,
   };
 }

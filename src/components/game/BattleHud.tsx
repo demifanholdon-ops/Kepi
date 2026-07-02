@@ -80,21 +80,25 @@ export function BattleHud() {
           />
         </div>
       ) : null}
-      <div className="pointer-events-none absolute inset-x-0 top-[max(5.25rem,calc(env(safe-area-inset-top)+4.75rem))] z-20 flex justify-center px-[5%]">
+      <div className="pointer-events-none absolute inset-x-0 top-2 z-20 flex justify-center px-[5%]">
         <WoodPanel
+          letterEdge
           className={cn(
-            "pointer-events-auto w-full max-w-3xl transition-[filter,box-shadow]",
+            "kepi-battle-hud pointer-events-auto w-full max-w-3xl transition-[filter,box-shadow]",
             crisisLevel === 2 && "kepi-battle-hud--crisis-high",
             crisisLevel === 1 && "kepi-battle-hud--crisis-mid",
           )}
           innerClassName="px-3 py-2"
         >
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.6875rem] sm:gap-x-4 sm:text-xs">
-            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 tabular-nums">
+            {/* Left — resources */}
+            <span className="inline-flex flex-wrap items-center gap-x-2.5 gap-y-0.5 tabular-nums">
               <span
                 className={cn(
                   "inline-flex items-center gap-1",
-                  kebiReady ? "font-semibold text-kepi-accent" : "text-kepi-ink-muted",
+                  kebiReady
+                    ? "font-semibold text-kepi-accent"
+                    : "text-kepi-ink-muted",
                 )}
               >
                 <GameIcon src={UI.kebi} size={14} />
@@ -111,25 +115,29 @@ export function BattleHud() {
                 <GameIcon src={UI.survival} size={14} />
                 存续 {gameState.survival}
               </span>
+              <span className="hidden items-center gap-1.5 text-kepi-ink-muted min-[420px]:inline-flex">
+                <GameIcon src={UI.homeRepair} size={14} />
+                <span className="max-w-[12rem] truncate">
+                  {TU_LOU_BUFF_LABELS[tier]} · {homeRepairStageLabel(homeRepair)}
+                </span>
+              </span>
             </span>
 
+            {/* Center — countdown */}
             <span className="inline-flex items-center gap-1.5 font-bold tabular-nums text-kepi-ink">
+              <GameIcon src={UI.battleStart} size={16} className="opacity-80" />
               剩余 {remainingSec}s
             </span>
 
-            <WaterGuestStatus
-              deployed={battle.waterGuest.deployed}
-              died={battle.waterGuest.died}
-              hp={shuike?.hp ?? 0}
-              maxHp={shuike?.maxHp ?? 0}
-              crisisLevel={crisisLevel}
-            />
-
-            <span className="inline-flex min-w-0 items-center gap-1.5 text-kepi-ink-muted">
-              <GameIcon src={UI.homeRepair} size={14} />
-              <span className="truncate">
-                {TU_LOU_BUFF_LABELS[tier]} · {homeRepairStageLabel(homeRepair)}
-              </span>
+            {/* Right — water guest status */}
+            <span className="ml-auto inline-flex items-center">
+              <WaterGuestStatus
+                deployed={battle.waterGuest.deployed}
+                died={battle.waterGuest.died}
+                hp={shuike?.hp ?? 0}
+                maxHp={shuike?.maxHp ?? 0}
+                crisisLevel={crisisLevel}
+              />
             </span>
           </div>
 

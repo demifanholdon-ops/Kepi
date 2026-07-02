@@ -1,12 +1,11 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ASSET_MANIFEST } from "@/data/assets";
 import { PIECE_TEMPLATES, PAWN_KEBI_GOLD, BLOOD_DEBT_GOLD } from "@/engine/constants";
 import { journeyNodeAt } from "@/data/journey";
 import { levelInteractionForNode } from "@/data/levelInteractions";
 import { PIECE_VISUALS, isProtectedPiece } from "@/lib/game/assets";
-import { benchBottomRemForPrep, benchDockBottomOffset, benchDockStyle } from "@/lib/game/bottomLayout";
 import { groupShopOffers } from "@/lib/game/shopOffers";
 import { pieceInspectAnchor } from "@/lib/game/pieceInspectAnchor";
 import { inspectShopPiece } from "@/lib/game/unitInspect";
@@ -361,40 +360,18 @@ export function BenchStrip() {
   const setSelectedPiece = useGameStore((state) => state.setSelectedPiece);
   const sellSelected = useGameStore((state) => state.sellSelected);
   const pushToast = useUIStore((state) => state.pushToast);
-  const prepDockExpanded = useUIStore((state) => state.prepDockExpanded);
-  const bottomDockHeightPx = useUIStore((state) => state.bottomDockHeightPx);
   const setDomPieceInspect = useUIStore((state) => state.setDomPieceInspect);
-  const [rootFontSizePx, setRootFontSizePx] = useState(16);
 
-  useLayoutEffect(() => {
-    const readRootFontSize = () => {
-      const size = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
-      setRootFontSizePx(Number.isFinite(size) && size > 0 ? size : 16);
-    };
-
-    readRootFontSize();
-    window.addEventListener("resize", readRootFontSize);
-    return () => window.removeEventListener("resize", readRootFontSize);
-  }, []);
+  if (phase !== "prep" || board.filter((piece) => piece.position === null).length === 0) {
+    return null;
+  }
 
   const unplaced = board.filter((piece) => piece.position === null);
-  const fallbackBottomRem = benchBottomRemForPrep(prepDockExpanded);
-  const benchBottom = benchDockBottomOffset(
-    bottomDockHeightPx,
-    rootFontSizePx,
-    fallbackBottomRem,
-  );
-  const benchStyle = useMemo(() => benchDockStyle(benchBottom), [benchBottom]);
-
-  if (phase !== "prep" || unplaced.length === 0) return null;
 
   const selectedOnBench = unplaced.some((piece) => piece.id === selectedPieceId);
 
   return (
-    <div
-      className="pointer-events-none absolute z-[25]"
-      style={benchStyle}
-    >
+    <div className="pointer-events-none flex w-full justify-start">
       <div className="kepi-bench-float kepi-bench-float--side pointer-events-auto">
         <span className="kepi-bench-float-label">
           待落位

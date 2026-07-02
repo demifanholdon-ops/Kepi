@@ -38,8 +38,8 @@
 
 :root {
   /* Kepi warm dusk palette */
-  --kepi-scene: #2c2416;
-  --kepi-scene-glow: rgba(232, 168, 73, 0.14);
+  --kepi-scene: #0f1218;
+  --kepi-scene-glow: rgba(150, 165, 190, 0.05);
   --kepi-panel: rgba(245, 234, 214, 0.92);
   --kepi-panel-border: #5c4033;
   --kepi-ink: #2c2416;
@@ -1067,7 +1067,7 @@
     z-index: 1;
     background: url("/images/ui/kepi_ui_vignette-warm.png") center / cover
       no-repeat;
-    opacity: 0.5;
+    opacity: 0.22;
     mix-blend-mode: multiply;
   }
 
@@ -1079,10 +1079,10 @@
     z-index: 1;
     background: linear-gradient(
       180deg,
-      rgba(44, 36, 22, 0.25) 0%,
+      rgba(8, 10, 14, 0.25) 0%,
       transparent 10%,
       transparent 82%,
-      rgba(44, 36, 22, 0.4) 100%
+      rgba(8, 10, 14, 0.4) 100%
     );
   }
 
@@ -1319,15 +1319,22 @@
     animation: kepi-journey-node-pulse 2.4s ease-in-out infinite;
   }
 
+  .kepi-journey-node-ring img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+  }
+
   @keyframes kepi-journey-node-pulse {
     0%,
     100% {
       opacity: 0.88;
-      transform: translate(-50%, -50%) scale(1);
+      transform: scale(1);
     }
     50% {
       opacity: 1;
-      transform: translate(-50%, -50%) scale(1.04);
+      transform: scale(1.05);
     }
   }
 
@@ -2653,6 +2660,161 @@
     overflow-y: auto;
   }
 
+  /* Left journey side rail */
+  .kepi-journey-side-rail-panel {
+    box-shadow:
+      0 4px 18px rgba(44, 36, 22, 0.16),
+      inset 0 1px 0 rgba(255, 248, 235, 0.35);
+  }
+
+  /* Game chrome — full-bleed canvas with floating WoodPanel overlays */
+  .kepi-game-chrome {
+    --kepi-rail-w: 7.5rem;
+    --kepi-prep-dock-h: 11.5rem;
+
+    position: relative;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* Full-bleed stage layer hosts the canvas + scene overlays */
+  .kepi-chrome-stage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Top — just the settings button, top-right, no full-width strip */
+  .kepi-chrome-top {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding:
+      max(0.5rem, env(safe-area-inset-top))
+      max(0.5rem, env(safe-area-inset-right))
+      0
+      0;
+    pointer-events: none;
+  }
+
+  .kepi-chrome-top > * {
+    pointer-events: auto;
+  }
+
+  .kepi-chrome-settings {
+    color: rgba(245, 235, 220, 0.92);
+    background: transparent;
+    border: none;
+  }
+
+  /* Left rail — floating WoodPanel, content height */
+  .kepi-chrome-rail {
+    position: absolute;
+    top: max(2.75rem, calc(env(safe-area-inset-top) + 2.25rem));
+    left: max(0.5rem, env(safe-area-inset-left));
+    width: var(--kepi-rail-w);
+    z-index: 10;
+    max-height: calc(100dvh - max(3rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
+    overflow-y: auto;
+  }
+
+  .kepi-chrome-rail-inner {
+    height: auto;
+  }
+
+  /* Bench float — overlays canvas above the prep dock, never compresses shop */
+  .kepi-chrome-bench {
+    position: absolute;
+    left: calc(max(0.5rem, env(safe-area-inset-left)) + var(--kepi-rail-w) + 0.25rem);
+    right: max(0.5rem, env(safe-area-inset-right));
+    bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + var(--kepi-prep-dock-h, 11.5rem));
+    z-index: 25;
+    pointer-events: none;
+    max-width: min(22rem, calc(100% - var(--kepi-rail-w) - 2rem));
+  }
+
+  .kepi-chrome-bench > * {
+    pointer-events: auto;
+  }
+
+  /* Bottom stack — shop + hud only (bench floats separately) */
+  .kepi-chrome-bottom {
+    position: absolute;
+    left: calc(max(0.5rem, env(safe-area-inset-left)) + var(--kepi-rail-w) + 0.25rem);
+    right: max(0.5rem, env(safe-area-inset-right));
+    bottom: max(0.5rem, env(safe-area-inset-bottom));
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    pointer-events: none;
+  }
+
+  .kepi-chrome-bottom > * {
+    pointer-events: auto;
+    flex-shrink: 0;
+  }
+
+  .kepi-chrome-shop {
+    min-width: 0;
+    max-height: min(32vh, 13.5rem);
+    overflow: hidden auto;
+  }
+
+  .kepi-chrome-hud {
+    min-width: 0;
+  }
+
+  .kepi-journey-side-rail-track {
+    scrollbar-width: thin;
+  }
+
+  .kepi-journey-track-vertical .kepi-journey-node--current .kepi-journey-node-ring {
+    animation: kepi-journey-node-pulse 2.4s ease-in-out infinite;
+  }
+
+  /* Prep bottom dock — shop (top) + HUD (bottom) */
+  .kepi-prep-shop-pane {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .kepi-prep-hud-pane {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* Compact metric chips inside the prep HUD pane (no big PNG tag) */
+  .kepi-prep-hud-metric.kepi-hud-tag {
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    background: none;
+    filter: none;
+  }
+
+  .kepi-prep-hud-metric .kepi-hud-tag-inner {
+    padding: 0.25rem 0.375rem;
+  }
+
+  .kepi-prep-hud-metric .kepi-hud-label {
+    font-size: 0.5625rem;
+  }
+
+  .kepi-prep-hud-metric .kepi-hud-value {
+    font-size: 0.75rem;
+  }
+
   .kepi-prep-shop-slots {
     scrollbar-width: thin;
   }
@@ -2837,6 +2999,45 @@
   }
 
   /* Prep sidebar + guide */
+  .kepi-prep-guide-banner-inner {
+    min-width: 0;
+  }
+
+  .kepi-prep-guide-banner-label {
+    color: var(--kepi-ink-muted);
+  }
+
+  .kepi-prep-guide-banner-sep {
+    color: rgba(92, 80, 64, 0.4);
+  }
+
+  .kepi-prep-guide-banner-step {
+    color: var(--kepi-ink-muted);
+  }
+
+  .kepi-prep-guide-banner-step--active {
+    color: var(--kepi-accent);
+    font-weight: 700;
+  }
+
+  .kepi-prep-guide-banner-step--done {
+    color: rgba(22, 101, 52, 0.85);
+    text-decoration: line-through;
+    text-decoration-color: rgba(22, 101, 52, 0.45);
+  }
+
+  .kepi-prep-guide-banner-prompt {
+    color: var(--kepi-ink);
+  }
+
+  .kepi-prep-guide-banner-skip {
+    color: var(--kepi-ink-muted);
+  }
+
+  .kepi-prep-guide-banner-skip:hover {
+    color: var(--kepi-ink);
+  }
+
   .kepi-prep-guide-bar {
     border-radius: 0.5rem;
     border: 1px dashed rgba(44, 36, 22, 0.14);
