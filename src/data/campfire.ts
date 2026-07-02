@@ -50,7 +50,7 @@ export type CampfireScenario = {
   choiceActLabel?: string;
   /** Soft hint above the confirm CTA on text-only choice beats. */
   choiceHint?: string;
-  /** Hide effect chips and use one-click text choices (camp-1). */
+  /** Split-card confirm flow (select → 今夜如此); effect labels still shown per PRD whitelist. */
   textOnlyChoices?: boolean;
 };
 

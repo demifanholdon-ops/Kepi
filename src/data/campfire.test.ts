@@ -23,6 +23,8 @@ describe("campfire data", () => {
     expect(scenario.openingActLabel).toBe("第一幕 · 背景");
     expect(scenario.choiceActLabel).toBe("第二幕 · 抉择");
     expect(scenario.choiceHint).toBe("火光还暖，想好再选。");
+    expect(scenario.choices[0]?.effect.label).toBe("获得 8 金币");
+    expect(scenario.choices[1]?.effect.label).toBe("家园修复 +8%");
     expect(scenario.opening.length).toBeGreaterThanOrEqual(3);
     expect(campfireGlowModeForScenario(scenario)).toBe("none");
     expect(campfireBackgroundForScenario(scenario)).toBe(

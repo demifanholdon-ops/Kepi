@@ -320,7 +320,7 @@ function CampfireChoiceBeat({
   onConfirm: () => void;
 }) {
   const splitChoices = SPLIT_CHOICE_SCENARIOS.has(scenarioId);
-  const showEffectLabels = scenarioId === "camp-old-route";
+  const showEffectLabels = splitChoices;
   const hintCopy = choiceHint ?? "此夜抉择将影响接下来的路。";
 
   return (
