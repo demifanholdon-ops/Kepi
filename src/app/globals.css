@@ -1608,58 +1608,220 @@
     }
   }
 
+  .kepi-pawn-choice-split {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+  }
+
+  .kepi-pawn-choice-split__seam {
+    position: absolute;
+    top: 0.35rem;
+    bottom: 0.35rem;
+    left: 50%;
+    width: 1px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(246, 193, 119, 0.28) 18%,
+      rgba(246, 193, 119, 0.28) 82%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+
   .kepi-pawn-action-card {
     position: relative;
+    display: flex;
+    min-height: 7.5rem;
+    flex-direction: column;
+    align-items: flex-start;
     overflow: hidden;
-    min-height: 8.5rem;
-    padding: 1rem 1.05rem 1.1rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(44, 36, 22, 0.22);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    padding: 0.85rem 0.8rem 0.95rem;
+    border: 1px solid rgba(246, 193, 119, 0.22);
+    border-radius: 0.55rem;
+    background:
+      linear-gradient(165deg, rgba(255, 248, 235, 0.05) 0%, transparent 38%),
+      linear-gradient(180deg, rgba(24, 14, 8, 0.9), rgba(10, 6, 4, 0.96));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 248, 235, 0.07),
+      0 8px 22px rgba(0, 0, 0, 0.28);
+    cursor: pointer;
+    text-align: left;
     transition:
-      transform 180ms ease,
-      box-shadow 180ms ease,
-      border-color 180ms ease,
-      filter 180ms ease;
+      border-color 220ms ease,
+      box-shadow 220ms ease,
+      transform 220ms ease,
+      background 220ms ease;
+  }
+
+  .kepi-pawn-action-card--readonly {
+    cursor: default;
+    pointer-events: none;
   }
 
   .kepi-pawn-action-card--pawn {
     background:
-      linear-gradient(180deg, rgba(255, 248, 235, 0.94), rgba(250, 240, 220, 0.9)),
-      url("/images/ui/kepi_ui_pawn-button-danger.png") center / cover no-repeat;
+      linear-gradient(145deg, rgba(245, 158, 11, 0.12) 0%, transparent 52%),
+      linear-gradient(180deg, rgba(28, 16, 8, 0.92), rgba(12, 7, 4, 0.97));
   }
 
   .kepi-pawn-action-card--debt {
     background:
-      linear-gradient(180deg, rgba(255, 248, 235, 0.92), rgba(244, 232, 220, 0.88)),
-      url("/images/ui/kepi_ui_campfire-choice.png") center / cover no-repeat;
+      linear-gradient(215deg, rgba(185, 28, 28, 0.14) 0%, transparent 52%),
+      linear-gradient(180deg, rgba(22, 12, 10, 0.92), rgba(10, 6, 5, 0.97));
+  }
+
+  .kepi-pawn-action-card__fold {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.65rem;
+    height: 1.65rem;
+    background: linear-gradient(
+      225deg,
+      rgba(255, 248, 235, 0.1) 0%,
+      rgba(255, 248, 235, 0.02) 48%,
+      transparent 50%
+    );
+    pointer-events: none;
+  }
+
+  .kepi-pawn-action-card__eyebrow {
+    position: relative;
+    z-index: 1;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(251, 191, 36, 0.72);
+  }
+
+  .kepi-pawn-action-card--debt .kepi-pawn-action-card__eyebrow {
+    color: rgba(248, 113, 113, 0.78);
+  }
+
+  .kepi-pawn-action-card__head {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.45rem;
+  }
+
+  .kepi-pawn-action-card__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255, 248, 235, 0.96);
+  }
+
+  .kepi-pawn-action-card__desc {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.45rem;
+    flex: 1;
+    font-size: 0.75rem;
+    line-height: 1.45;
+    color: rgba(255, 248, 235, 0.72);
+  }
+
+  .kepi-pawn-action-card__mark {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 248, 235, 0.28);
+    background: rgba(0, 0, 0, 0.28);
+    opacity: 0;
+    transform: scale(0.82);
+    transition:
+      opacity 180ms ease,
+      transform 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease;
   }
 
   .kepi-pawn-action-card:hover:not(:disabled) {
-    transform: translateY(-2px);
-    filter: brightness(1.03);
+    transform: translateY(-1px);
+    border-color: rgba(246, 193, 119, 0.38);
   }
 
   .kepi-pawn-action-card--active {
     border-color: rgba(245, 158, 11, 0.72);
     box-shadow:
-      0 0 0 1px rgba(245, 158, 11, 0.35),
-      0 12px 32px rgba(120, 53, 15, 0.35);
+      inset 0 0 0 1px rgba(245, 158, 11, 0.18),
+      0 0 24px rgba(120, 53, 15, 0.28);
+  }
+
+  .kepi-pawn-action-card--debt.kepi-pawn-action-card--active {
+    border-color: rgba(248, 113, 113, 0.62);
+    box-shadow:
+      inset 0 0 0 1px rgba(248, 113, 113, 0.16),
+      0 0 24px rgba(127, 29, 29, 0.24);
+  }
+
+  .kepi-pawn-action-card--active .kepi-pawn-action-card__mark {
+    opacity: 1;
+    transform: scale(1);
+    border-color: rgba(255, 248, 235, 0.72);
+    background: radial-gradient(circle, rgba(255, 248, 235, 0.92) 0%, rgba(245, 158, 11, 0.55) 100%);
+  }
+
+  .kepi-pawn-action-card--debt.kepi-pawn-action-card--active .kepi-pawn-action-card__mark {
+    background: radial-gradient(circle, rgba(255, 248, 235, 0.92) 0%, rgba(248, 113, 113, 0.62) 100%);
   }
 
   .kepi-pawn-action-card:disabled {
     cursor: not-allowed;
-    opacity: 0.52;
+    opacity: 0.48;
+  }
+
+  .kepi-pawn-action-card:focus-visible {
+    outline: 2px solid rgba(212, 165, 116, 0.55);
+    outline-offset: 3px;
   }
 
   .kepi-pawn-effect-badge {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.65rem;
     border-radius: 999px;
-    border: 1px solid rgba(44, 36, 22, 0.12);
-    background: rgba(255, 255, 255, 0.55);
-    padding: 0.25rem 0.6rem;
-    font-size: 0.6875rem;
+    border: 1px solid rgba(246, 193, 119, 0.24);
+    background: rgba(0, 0, 0, 0.28);
+    padding: 0.28rem 0.62rem;
+    font-size: 0.625rem;
     font-weight: 600;
-    color: rgba(44, 36, 22, 0.88);
+    letter-spacing: 0.04em;
+    color: rgba(251, 191, 36, 0.86);
+  }
+
+  .kepi-pawn-action-card--debt .kepi-pawn-effect-badge {
+    color: rgba(252, 165, 165, 0.88);
+    border-color: rgba(248, 113, 113, 0.28);
+  }
+
+  @media (min-width: 640px) {
+    .kepi-pawn-choice-split {
+      gap: 0.85rem;
+    }
+
+    .kepi-pawn-action-card {
+      min-height: 8rem;
+      padding: 1rem 0.95rem 1.05rem;
+    }
+
+    .kepi-pawn-action-card__title {
+      font-size: 1.0625rem;
+    }
+
+    .kepi-pawn-action-card__desc {
+      font-size: 0.8125rem;
+    }
   }
 
   .kepi-pawn-stat-chip {

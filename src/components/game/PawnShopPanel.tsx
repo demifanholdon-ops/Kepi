@@ -189,7 +189,7 @@ function PawnShopCinematic({ nodeLabel }: { nodeLabel: string }) {
           </p>
           <h2 className="mt-1 text-xl font-bold text-amber-50 sm:text-2xl">{nodeLabel}</h2>
           <p className="mt-2 text-xs text-amber-100/82 sm:text-sm">
-            当信换盘缠，或透支未来的归乡阈值。
+            当信换金币，或透支未来的归乡阈值。
           </p>
         </div>
 
@@ -238,17 +238,20 @@ function PawnShopCinematic({ nodeLabel }: { nodeLabel: string }) {
             </p>
           </div>
 
-          <div className="pointer-events-auto grid w-full max-w-2xl gap-3 sm:grid-cols-2">
+          <div className="kepi-pawn-choice-split pointer-events-auto w-full max-w-2xl">
             <PawnActionCard
-              title="当信 · 防守"
+              eyebrow="防守"
+              title="当信"
               description={`-1 客批，+${PAWN_KEBI_GOLD} 金。长按上方信纸完成仪式。`}
               icon={UI.pawnKebi}
               effectLabel={`+${PAWN_KEBI_GOLD} 金币`}
               tone="pawn"
               active={ritual === "holding" || ritual === "burning" || ritual === "gold"}
             />
+            <span className="kepi-pawn-choice-split__seam" aria-hidden />
             <PawnActionCard
-              title="透支 · 进攻"
+              eyebrow="进攻"
+              title="透支未来"
               description={`+${BLOOD_DEBT_GOLD} 金，归乡阈值 +1。未来的路更长更险。`}
               icon={UI.bloodDebt}
               effectLabel="阈值 +1"
@@ -266,7 +269,7 @@ function PawnShopCinematic({ nodeLabel }: { nodeLabel: string }) {
             )}
           >
             <StatChip icon={UI.kebi} label="客批" value={`${state.kebi}/${state.kebiThreshold}`} />
-            <StatChip icon={UI.gold} label="盘缠" value={String(state.gold)} />
+            <StatChip icon={UI.gold} label="金币" value={String(state.gold)} />
             <StatChip icon={UI.bloodDebt} label="透支" value={`${state.bloodDebtCount} 次`} />
             <StatChip icon={UI.homewardTicket} label="归乡" value={`需 ${state.kebiThreshold} 封`} />
           </div>
@@ -286,6 +289,7 @@ function PawnShopCinematic({ nodeLabel }: { nodeLabel: string }) {
 }
 
 function PawnActionCard({
+  eyebrow,
   title,
   description,
   icon,
@@ -295,6 +299,7 @@ function PawnActionCard({
   active,
   onActivate,
 }: {
+  eyebrow: string;
   title: string;
   description: string;
   icon: string;
@@ -305,26 +310,27 @@ function PawnActionCard({
   onActivate?: () => void;
 }) {
   const className = cn(
-    "kepi-pawn-action-card text-left",
+    "kepi-pawn-action-card",
     tone === "pawn" && "kepi-pawn-action-card--pawn",
     tone === "debt" && "kepi-pawn-action-card--debt",
     active && "kepi-pawn-action-card--active",
-    !onActivate && "pointer-events-none",
+    !onActivate && "kepi-pawn-action-card--readonly",
   );
 
   const body = (
     <>
-      <div className="flex items-start gap-2">
-        <GameIcon src={icon} size={28} />
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-kepi-ink">{title}</p>
-          <p className="mt-1 text-xs leading-relaxed text-kepi-ink-muted">{description}</p>
-        </div>
+      <span className="kepi-pawn-action-card__fold" aria-hidden />
+      <span className="kepi-pawn-action-card__eyebrow">{eyebrow}</span>
+      <div className="kepi-pawn-action-card__head">
+        <GameIcon src={icon} size={26} />
+        <p className="kepi-pawn-action-card__title">{title}</p>
       </div>
-      <span className="kepi-pawn-effect-badge mt-3 inline-flex items-center gap-1.5">
+      <p className="kepi-pawn-action-card__desc">{description}</p>
+      <span className="kepi-pawn-effect-badge mt-1 inline-flex items-center gap-1.5">
         <GameIcon src={icon} size={14} />
         {effectLabel}
       </span>
+      <span className="kepi-pawn-action-card__mark" aria-hidden />
     </>
   );
 
