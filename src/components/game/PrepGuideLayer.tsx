@@ -130,7 +130,6 @@ export function prepGuideTargetClass(
   currentStep: PrepGuideStep,
 ): string | undefined {
   if (currentStep === "done") return undefined;
-  if (target === "buy-shuike" && currentStep === 1) return "kepi-prep-guide-target";
   if (target === "start-battle" && currentStep === 3) return "kepi-prep-guide-target";
   return undefined;
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { computeBoardMetrics } from "./boardLayout";
+import { boardToPixel, computeBoardMetrics, pixelToBoard } from "./boardLayout";
 import { hitTestUnits } from "./unitHitTest";
-import { unitSpriteMetrics } from "./unitLayout";
+import { pointInHitbox, unitSpriteMetrics } from "./unitLayout";
 import type { Enemy, Piece } from "@/types";
 
 describe("hitTestUnits", () => {
@@ -50,6 +50,21 @@ describe("hitTestUnits", () => {
     const hit = hitTestUnits(sprite.x, sprite.y, metrics, allies, [], "prep");
     expect(hit?.side).toBe("ally");
     expect(hit?.id).toBe("farmer_1");
+  });
+
+  it("back-row ally hitbox overlaps front-row cell (placement must use grid cell first)", () => {
+    const metrics = computeBoardMetrics(1280, 720, { allyBottomRatio: 0.5 });
+    const col = 3;
+    const backRowSprite = unitSpriteMetrics({ x: col, y: 4 }, metrics);
+    const frontCellCenter = boardToPixel({ x: col, y: 3 }, metrics);
+
+    expect(pointInHitbox(frontCellCenter.x, frontCellCenter.y, backRowSprite)).toBe(
+      true,
+    );
+    expect(pixelToBoard(frontCellCenter.x, frontCellCenter.y, metrics, true)).toEqual({
+      x: col,
+      y: 3,
+    });
   });
 
   it("ignores unplaced allies during prep", () => {

@@ -414,9 +414,7 @@ export function useGameCanvas(
         current.phase === "battle" ||
         current.phase === "settlement" ||
         prepFxRef.current.length > 0 ||
-        (current.phase === "prep" &&
-          Boolean(selectedRef.current) &&
-          hoveredAllyCellRef.current !== null);
+        (current.phase === "prep" && Boolean(selectedRef.current));
 
       const shouldPaint = needsAmbient || now - lastPaint >= frameMs;
 
@@ -561,21 +559,21 @@ export function useGameCanvas(
       const selectedId = selectedRef.current;
 
       if (selectedId) {
-        const hit = hitTestUnits(
-          x,
-          y,
-          metrics,
-          current.board,
-          enemies,
-          current.phase,
-        );
-        if (hit?.side === "ally" && hit.id !== selectedId) {
-          onUnitClick?.(hit.id);
-          return;
-        }
-
+        // Match hover: resolve the grid cell first. Back-row unit hitboxes extend
+        // into the front row, so hitTestUnits would steal clicks meant for placement.
         const cell = pixelToBoard(x, y, metrics, true);
         if (cell) {
+          const occupant = current.board.find(
+            (piece) =>
+              piece.position !== null &&
+              piece.position.x === cell.x &&
+              piece.position.y === cell.y &&
+              piece.id !== selectedId,
+          );
+          if (occupant) {
+            onUnitClick?.(occupant.id);
+            return;
+          }
           onCellClick?.(cell);
           return;
         }

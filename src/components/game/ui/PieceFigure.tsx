@@ -43,6 +43,8 @@ export function PieceFigure({
         className={cn(
           "kepi-piece-figure-ground",
           isBench && "kepi-piece-figure-ground-bench",
+          selected && "kepi-piece-figure-ground-selected",
+          isBench && selected && "kepi-piece-figure-ground-bench-selected",
         )}
         aria-hidden
       />
@@ -71,7 +73,7 @@ export function PieceFigure({
     isBench && "kepi-piece-figure-bench",
     selected && "kepi-piece-figure-selected",
     isBench && selected && "kepi-piece-figure-bench-selected",
-    onClick && "kepi-piece-figure-interactive",
+    onClick && "kepi-piece-figure-interactive outline-none",
     className,
   );
 

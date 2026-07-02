@@ -58,15 +58,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   buyFromShop: (pieceType) => {
-    const prevBoardLen = get().snapshot.board.length;
     const ok = apply(set, get, { type: "BUY_PIECE", pieceType });
-    if (!ok) return false;
-    const board = get().snapshot.board;
-    const bought = board[board.length - 1];
-    if (board.length > prevBoardLen && bought) {
-      set({ selectedPieceId: bought.id });
-    }
-    return true;
+    return ok;
   },
 
   sellSelected: () => {

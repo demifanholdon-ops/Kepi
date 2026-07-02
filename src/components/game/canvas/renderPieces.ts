@@ -26,6 +26,8 @@ type UnitDrawJob = {
     bottom: number;
   };
   hovered: boolean;
+  selected: boolean;
+  timeMs: number;
   hpRatio: number;
   showHpBar: boolean;
   preview: boolean;
@@ -104,6 +106,34 @@ function drawPreviewRing(
   ctx.beginPath();
   ctx.ellipse(x, feetY, cellSize * 0.36, cellSize * 0.13, 0, 0, Math.PI * 2);
   ctx.stroke();
+  ctx.restore();
+}
+
+function drawSelectedGlow(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  feetY: number,
+  cellSize: number,
+  timeMs: number,
+): void {
+  const pulse = 0.72 + 0.28 * Math.sin(timeMs * 0.0045);
+  ctx.save();
+
+  const glow = ctx.createRadialGradient(x, feetY, 0, x, feetY, cellSize * 0.52);
+  glow.addColorStop(0, `rgba(212, 165, 116, ${0.34 * pulse})`);
+  glow.addColorStop(0.45, `rgba(142, 202, 230, ${0.22 * pulse})`);
+  glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.ellipse(x, feetY, cellSize * 0.48, cellSize * 0.17, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.globalAlpha = 0.42 * pulse;
+  ctx.fillStyle = "rgba(212, 165, 116, 0.55)";
+  ctx.beginPath();
+  ctx.ellipse(x, feetY, cellSize * 0.3, cellSize * 0.1, 0, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.restore();
 }
 
@@ -190,6 +220,8 @@ function drawUnit(
     placeholder,
     visibleBounds,
     hovered,
+    selected,
+    timeMs,
     hpRatio,
     showHpBar,
     preview,
@@ -203,6 +235,9 @@ function drawUnit(
   const feetYBase = feetY + motionDy;
 
   drawFootShadow(ctx, drawXBase, feetYBase, cellSize, preview ? 0.18 : 0.28);
+  if (selected) {
+    drawSelectedGlow(ctx, drawXBase, feetYBase, cellSize, timeMs);
+  }
   if (preview) {
     drawPreviewRing(ctx, drawXBase, feetYBase, cellSize, stroke);
   }
@@ -292,6 +327,9 @@ export function renderUnitsLayer(
         hovered?.side === "ally" &&
         hovered.unitId === piece.id &&
         !(state.phase === "prep" && state.selectedPieceId),
+      selected:
+        state.phase === "prep" && state.selectedPieceId === piece.id,
+      timeMs: state.timeMs,
       hpRatio: piece.hp / piece.maxHp,
       showHpBar,
       preview: false,
@@ -321,6 +359,8 @@ export function renderUnitsLayer(
       placeholder: meta.placeholder,
       visibleBounds: meta.visibleBounds,
       hovered: hovered?.side === "enemy" && hovered.unitId === enemy.id,
+      selected: false,
+      timeMs: state.timeMs,
       hpRatio: enemy.hp / enemy.maxHp,
       showHpBar: showHpBar && !enemyPreview,
       preview: enemyPreview,
@@ -407,6 +447,8 @@ function renderPlacementGhost(
       placeholder: meta.placeholder,
       visibleBounds: meta.visibleBounds,
       hovered: false,
+      selected: false,
+      timeMs: state.timeMs,
       hpRatio: 1,
       showHpBar: false,
       preview: true,

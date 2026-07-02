@@ -230,14 +230,7 @@ export function ShopPanel({
       >
         <div className="kepi-prep-shop-slots flex min-w-0 flex-1 flex-wrap items-end gap-1 overflow-x-auto sm:gap-2">
           {shopOffers.map((offer) => (
-            <div
-              key={offer.type}
-              className={
-                offer.type === "shuike"
-                  ? prepGuideTargetClass("buy-shuike", prepGuideStep)
-                  : undefined
-              }
-            >
+            <div key={offer.type}>
               <PieceFigure
                 type={offer.type}
                 height={dock ? 80 : 88}
