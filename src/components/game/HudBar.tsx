@@ -10,6 +10,9 @@ type HudBarProps = {
 
 export function HudBar({ embedded = false }: HudBarProps) {
   const setSettingsOpen = useUIStore((state) => state.setSettingsOpen);
+  const hideSettings = useUIStore((state) => state.settlementCinematicActive);
+
+  if (hideSettings) return null;
 
   return (
     <header

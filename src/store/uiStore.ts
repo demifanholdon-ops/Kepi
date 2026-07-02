@@ -59,6 +59,9 @@ type UIStore = {
   setDomPieceInspect: (inspect: DomPieceInspect | null) => void;
   settingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
+  /** Hide chrome settings while victory cinematic plays (settlement). */
+  settlementCinematicActive: boolean;
+  setSettlementCinematicActive: (active: boolean) => void;
   hoveredUnit: HoveredUnit | null;
   setHoveredUnit: (unit: HoveredUnit | null) => void;
   toasts: ToastMessage[];
@@ -150,6 +153,10 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   settingsOpen: false,
   setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
+
+  settlementCinematicActive: false,
+  setSettlementCinematicActive: (settlementCinematicActive) =>
+    set({ settlementCinematicActive }),
 
   hoveredUnit: null,
   setHoveredUnit: (hoveredUnit) => set({ hoveredUnit }),

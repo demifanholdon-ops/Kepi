@@ -19,7 +19,7 @@ export function SettlementNarrative({
         aria-busy="true"
         aria-label="侨批旁白加载中"
       >
-        <p className="text-xs text-kepi-ink-muted">侨批余音……</p>
+        <p className="text-[0.6875rem] text-kepi-ink-muted">侨批余音……</p>
       </div>
     );
   }

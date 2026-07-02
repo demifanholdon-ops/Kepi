@@ -16,6 +16,7 @@ import {
 import { buildTurnNarrativeInput } from "@/lib/ai/buildTurnNarrativeInput";
 import { useFxStore } from "@/store/fxStore";
 import { useGameStore } from "@/store/gameStore";
+import { useUIStore } from "@/store/uiStore";
 import type { GameState, SettlementSummary } from "@/types";
 import { cn } from "@/lib/utils";
 import { GameIcon, WoodButton, WoodPanel } from "@/components/game/ui";
@@ -254,7 +255,7 @@ function FinalSettlementGateBanner({
   return (
     <div
       className={cn(
-        "mt-3 flex items-start gap-2.5 rounded-md border px-3 py-2.5 text-xs leading-relaxed",
+        "mt-2.5 flex items-start gap-2 rounded-md border px-2.5 py-2 text-[0.6875rem] leading-relaxed",
         won && kebiReady
           ? "border-emerald-800/35 bg-emerald-950/18 text-emerald-50/95"
           : "border-amber-800/35 bg-amber-950/18 text-amber-50/95",
@@ -263,14 +264,14 @@ function FinalSettlementGateBanner({
     >
       <GameIcon
         src={ASSET_MANIFEST.ending.homewardTicketProp}
-        size={28}
+        size={24}
         className="mt-0.5 shrink-0"
       />
       <div>
         <p className="font-bold">
           {won ? "风浪已过 — 归乡票根" : "终局失利 — 归乡暂缓"}
         </p>
-        <p className="mt-0.5 text-[0.6875rem] opacity-92">
+        <p className="mt-0.5 text-[0.625rem] opacity-92">
           {won
             ? kebiReady
               ? `客批 ${state.kebi}/${state.kebiThreshold} 已达标。点击下方「查看结局」，查验完美归乡或遗憾结局。`
@@ -322,14 +323,14 @@ function SettlementSummaryCard({
         <div className="pointer-events-none absolute inset-0 bg-black/35" aria-hidden />
       )}
       <WoodPanel
-        className="pointer-events-auto relative w-full max-w-md"
+        className="pointer-events-auto relative w-full max-w-md max-h-[min(92dvh,calc(100dvh-2rem))] overflow-y-auto"
         letterEdge
-        innerClassName="p-5"
+        innerClassName="p-4"
       >
-        <h2 className="text-center text-lg font-bold text-kepi-ink">
+        <h2 className="text-center text-base font-bold text-kepi-ink">
           {settlementHeadline(won, state.currentNodeId, settlement)}
         </h2>
-        <p className="mt-1 text-center text-xs text-kepi-ink-muted">
+        <p className="mt-1 text-center text-[0.6875rem] leading-snug text-kepi-ink-muted">
           {settlementSubtitle(won, state.survival, state.currentNodeId, settlement)}
         </p>
 
@@ -339,7 +340,7 @@ function SettlementSummaryCard({
           <FinalSettlementGateBanner state={state} won={won} />
         ) : null}
 
-        <div className="kepi-wood-divider my-4" />
+        <div className="kepi-wood-divider my-3" />
 
         {won && settlement && settlement.kebiGained > 0 ? (
           <SettlementRelay settlement={settlement} repairLabel={repairLabel} />
@@ -350,19 +351,19 @@ function SettlementSummaryCard({
         )}
 
         {interaction ? (
-          <div className="mt-3 rounded-md border border-amber-900/20 bg-amber-950/10 p-3 text-xs leading-relaxed text-kepi-ink-muted">
+          <div className="mt-2.5 rounded-md border border-amber-900/20 bg-amber-950/10 p-2.5 text-[0.6875rem] leading-relaxed text-kepi-ink-muted">
             <p className="font-semibold text-kepi-ink">{interaction.settlement.nextHook}</p>
-            <p className="mt-1">{interaction.acceptance}</p>
+            <p className="mt-0.5">{interaction.acceptance}</p>
           </div>
         ) : null}
 
-        <div className="kepi-wood-divider my-4" />
+        <div className="kepi-wood-divider my-3" />
 
         <SettlementNarrative input={narrativeInput} cacheKey={narrativeKey} />
 
-        <div className="kepi-wood-divider my-4" />
+        <div className="kepi-wood-divider my-3" />
 
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+        <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
           <Stat label="客批" icon={UI.kebi} value={`${state.kebi}/${state.kebiThreshold}`} />
           <Stat label="存续度" icon={UI.survival} value={String(state.survival)} />
           <Stat
@@ -383,10 +384,10 @@ function SettlementSummaryCard({
 
         <WoodButton
           variant="primary"
-          className="mt-5 w-full py-2.5 text-sm font-bold"
+          className="mt-4 w-full py-2 text-xs font-bold"
           onClick={() => advanceStage()}
         >
-          <GameIcon src={UI.settlementConfirm} size={18} />
+          <GameIcon src={UI.settlementConfirm} size={16} />
           {nextLabel}
         </WoodButton>
       </WoodPanel>
@@ -460,6 +461,14 @@ function VictoryCinematic({
   );
   const [shotIndex, setShotIndex] = useState(0);
   const repairShotIndex = shots.length - 1;
+  const setSettlementCinematicActive = useUIStore(
+    (store) => store.setSettlementCinematicActive,
+  );
+
+  useEffect(() => {
+    setSettlementCinematicActive(true);
+    return () => setSettlementCinematicActive(false);
+  }, [setSettlementCinematicActive]);
 
   useEffect(() => {
     if (shotIndex === repairShotIndex) {
@@ -573,18 +582,18 @@ function SettlementRelay({
   ];
 
   return (
-    <ol className="space-y-2">
+    <ol className="space-y-1.5">
       {steps.map((step, index) => (
         <li
           key={`${step.actor}-${index}`}
           className="kepi-settlement-step"
         >
-          <GameIcon src={step.icon} size={22} />
+          <GameIcon src={step.icon} size={18} />
           <div className="min-w-0">
-            <p className="text-[0.625rem] font-bold text-kepi-ink-muted">
+            <p className="text-[0.5625rem] font-bold text-kepi-ink-muted">
               {step.actor}
             </p>
-            <p className="text-sm font-semibold leading-snug text-kepi-ink">
+            <p className="text-xs font-semibold leading-snug text-kepi-ink">
               {step.line}
             </p>
           </div>
@@ -596,9 +605,9 @@ function SettlementRelay({
 
 function WinNoLetterSummary({ settlement }: { settlement: SettlementSummary }) {
   return (
-    <div className="rounded-md border border-amber-900/25 bg-amber-950/10 p-3 text-sm text-kepi-ink">
+    <div className="rounded-md border border-amber-900/25 bg-amber-950/10 p-2.5 text-xs text-kepi-ink">
       <p className="font-semibold">本回合收益为空</p>
-      <ul className="mt-2 space-y-1 text-xs text-kepi-ink-muted">
+      <ul className="mt-1.5 space-y-0.5 text-[0.6875rem] text-kepi-ink-muted">
         <li>客批 +0（须水客存活才收信）</li>
         <li>桑梓 +0 · 家园修复 +0%</li>
         <li>
@@ -617,9 +626,9 @@ function WinNoLetterSummary({ settlement }: { settlement: SettlementSummary }) {
 
 function LossSummary({ survival }: { survival: number }) {
   return (
-    <div className="rounded-md border border-red-900/20 bg-red-950/10 p-3 text-sm text-kepi-ink">
+    <div className="rounded-md border border-red-900/20 bg-red-950/10 p-2.5 text-xs text-kepi-ink">
       <p className="font-semibold">本关失利，信未抵家。</p>
-      <p className="mt-1 text-xs text-kepi-ink-muted">
+      <p className="mt-0.5 text-[0.6875rem] text-kepi-ink-muted">
         客批不增加，桑梓不产生，家园修复保持不变。当前存续度 {survival}。
       </p>
     </div>
@@ -642,7 +651,7 @@ function SettlementOutcomeRow({
         : "水客未上场";
 
   return (
-    <div className="mt-3 flex flex-wrap justify-center gap-2 text-[0.625rem]">
+    <div className="mt-2 flex flex-wrap justify-center gap-1.5 text-[0.5625rem]">
       <span
         className={cn(
           "rounded-full border px-2 py-0.5",
@@ -681,11 +690,11 @@ function Stat({
 }) {
   return (
     <div>
-      <dt className="flex items-center gap-1.5 text-kepi-ink-muted">
-        {icon ? <GameIcon src={icon} size={16} /> : null}
+      <dt className="flex items-center gap-1 text-[0.6875rem] text-kepi-ink-muted">
+        {icon ? <GameIcon src={icon} size={14} /> : null}
         {label}
       </dt>
-      <dd className="font-medium tabular-nums text-kepi-ink">{value}</dd>
+      <dd className="text-xs font-medium tabular-nums text-kepi-ink">{value}</dd>
     </div>
   );
 }
