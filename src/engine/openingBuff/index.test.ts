@@ -22,7 +22,10 @@ describe("opening buff (V3.1)", () => {
     });
     snapshot = {
       ...snapshot,
-      board: [createPiece("farmer", 1), createPiece("shuike", 1)],
+      board: [
+        { ...createPiece("farmer", 1), position: { x: 2, y: 4 } },
+        { ...createPiece("shuike", 1), position: { x: 3, y: 3 } },
+      ],
     };
 
     snapshot = reduceGameState(snapshot, { type: "START_BATTLE" });
@@ -39,7 +42,10 @@ describe("opening buff (V3.1)", () => {
     });
     snapshot = {
       ...snapshot,
-      board: [createPiece("farmer", 1), createPiece("shuike", 1)],
+      board: [
+        { ...createPiece("farmer", 1), position: { x: 2, y: 4 } },
+        { ...createPiece("shuike", 1), position: { x: 3, y: 3 } },
+      ],
     };
     snapshot = reduceGameState(snapshot, { type: "START_BATTLE" });
     snapshot = reduceGameState(snapshot, { type: "CATCH_OPENING_BUFF" });
@@ -57,7 +63,10 @@ describe("opening buff (V3.1)", () => {
     });
     snapshot = {
       ...snapshot,
-      board: [createPiece("guard", 1), createPiece("shuike", 1)],
+      board: [
+        { ...createPiece("guard", 1), position: { x: 1, y: 4 } },
+        { ...createPiece("shuike", 1), position: { x: 3, y: 3 } },
+      ],
     };
     snapshot = reduceGameState(snapshot, { type: "START_BATTLE" });
     snapshot = reduceGameState(snapshot, { type: "SKIP_OPENING_BUFF" });

@@ -28,31 +28,13 @@ function usePrepDockActive() {
 }
 
 export function PrepShopDock() {
-  const {
-    prepActive,
-    prepGuideStep,
-    markPrepGuideDone,
-    startBattle,
-    pushToast,
-    setPrepDockExpanded,
-  } = usePrepDockActive();
+  const { prepActive, setPrepDockExpanded } = usePrepDockActive();
 
   useEffect(() => {
     setPrepDockExpanded(true);
   }, [setPrepDockExpanded]);
 
   if (!prepActive) return null;
-
-  const onStartBattle = () => {
-    if (!startBattle()) {
-      pushToast("请先购买棋子再开战", "error");
-      return;
-    }
-    if (prepGuideStep === 3) {
-      markPrepGuideDone();
-    }
-    pushToast("战斗开始", "default");
-  };
 
   return (
     <section className="kepi-chrome-shop">
@@ -68,7 +50,7 @@ export function PrepShopDock() {
           </span>
           <PrepGuideBanner />
         </div>
-        <ShopPanel dock onStartBattle={onStartBattle} />
+        <ShopPanel dock />
       </WoodPanel>
     </section>
   );

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ASSET_MANIFEST } from "@/data/assets";
 import { PIECE_TEMPLATES, PAWN_KEBI_GOLD, BLOOD_DEBT_GOLD } from "@/engine/constants";
+import { isShuikePlaced } from "@/engine/waterGuest";
 import { journeyNodeAt } from "@/data/journey";
 import { levelInteractionForNode } from "@/data/levelInteractions";
 import { PIECE_VISUALS, isProtectedPiece } from "@/lib/game/assets";
@@ -114,8 +115,14 @@ export function ShopPanel({
 
   const onStartBattle = () => {
     setDomPieceInspect(null);
+    const shuikeOnRoster = board.some((piece) => piece.type === "shuike" && piece.hp > 0);
+    const shuikePlaced = board.some((piece) => isShuikePlaced(piece));
+    if (shuikeOnRoster && !shuikePlaced) {
+      pushToast("水客在备战队列，请先放到后排格子再开战", "error");
+      return;
+    }
     if (!startBattle()) {
-      pushToast("请先购买棋子再开战", "error");
+      pushToast("请先购买并落位棋子再开战", "error");
       return;
     }
     if (prepGuideStep === 3) {

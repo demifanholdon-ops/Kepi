@@ -1,7 +1,17 @@
-import type { BattleEvent, Piece, WaterGuestBattleState } from "@/types";
+import type { BattleEvent, BoardPosition, Piece, WaterGuestBattleState } from "@/types";
+import { isAllyRow } from "@/lib/game/boardLayout";
+
+export function isShuikePlaced(piece: Piece): piece is Piece & { position: BoardPosition } {
+  return (
+    piece.type === "shuike" &&
+    piece.hp > 0 &&
+    piece.position !== null &&
+    isAllyRow(piece.position.y)
+  );
+}
 
 export function findShuike(allies: Piece[]): Piece | undefined {
-  return allies.find((piece) => piece.type === "shuike");
+  return allies.find((piece) => isShuikePlaced(piece));
 }
 
 export function hasXiangxianPresent(allies: Piece[]): boolean {

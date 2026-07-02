@@ -77,7 +77,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   startBattle: () => {
-    if (get().snapshot.board.length === 0) return false;
+    const board = get().snapshot.board;
+    const placed = board.filter((piece) => piece.position !== null && piece.hp > 0);
+    if (placed.length === 0) return false;
     return apply(set, get, { type: "START_BATTLE" });
   },
 

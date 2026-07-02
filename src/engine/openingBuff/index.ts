@@ -6,12 +6,12 @@ import {
   OPENING_BUFF_TIMEOUT_WEAK,
 } from "@/data/battleBuffs";
 import type { GameSnapshot } from "@/types";
-import { defaultAllyPosition } from "@/lib/game/boardLayout";
 import {
   battleStageForNode,
   currentJourneyNode,
   scalingForNode,
 } from "../journey";
+import { waterGuestAtBattleStart } from "../waterGuest";
 import {
   advanceBattleTick,
   createBattleSnapshot,
@@ -89,13 +89,14 @@ export function enterBattleFromOpeningBuff(snapshot: GameSnapshot): GameSnapshot
   const scalingOverride = scalingForNode(node);
   const atkMultiplier = snapshot.activeOpeningBuff?.atkMultiplier ?? 1;
 
-  const board = snapshot.board.map((piece, index) =>
-    piece.position ? piece : { ...piece, position: defaultAllyPosition(index) },
+  const placedAllies = snapshot.board.filter(
+    (piece) => piece.position !== null && piece.hp > 0,
   );
+  const waterGuest = waterGuestAtBattleStart(placedAllies);
 
   const battle = createBattleSnapshot({
     stage,
-    allies: board,
+    allies: placedAllies,
     homeRepairTier: snapshot.state.homeRepairTier,
     openingBuffAtkMultiplier: atkMultiplier,
     enemyHpFactorOverride: snapshot.state.nextBattleEnemyHpFactor,
@@ -105,8 +106,7 @@ export function enterBattleFromOpeningBuff(snapshot: GameSnapshot): GameSnapshot
   return transitionPhase(
     {
       ...snapshot,
-      board,
-      battle,
+      battle: { ...battle, waterGuest },
       lastBattleResult: null,
       settlement: null,
       state: { ...snapshot.state, stage },

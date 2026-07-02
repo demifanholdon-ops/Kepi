@@ -171,11 +171,13 @@ export function movePiece(
   };
 }
 
-/** New prep phase: all owned pieces return to bench for redeployment. */
+/** New prep phase: remove casualties, heal survivors, return all to bench. */
 export function recallBoardToBench(snapshot: GameSnapshot): GameSnapshot {
   return {
     ...snapshot,
-    board: snapshot.board.map((piece) => ({ ...piece, position: null })),
+    board: snapshot.board
+      .filter((piece) => piece.hp > 0)
+      .map((piece) => ({ ...piece, hp: piece.maxHp, position: null })),
   };
 }
 
