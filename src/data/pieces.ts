@@ -84,7 +84,7 @@ export const PIECES: Record<PieceType, PieceDefinition> = {
     type: "shuike",
     name: "水客",
     cost: 1,
-    hp: 400,
+    hp: 600,
     atk: 0,
     atkSpeed: 0,
     armor: 5,
