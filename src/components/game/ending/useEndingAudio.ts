@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { ASSET_MANIFEST } from "@/data/assets";
 import type { ArchivalLetter } from "@/data/types";
+import { playCollectLetterSfx, playWaveSfx } from "@/lib/audio/sfx";
+import { stopBgm } from "@/lib/audio/bgm";
 
 type UseEndingAudioOptions = {
   enabled?: boolean;
@@ -10,58 +11,46 @@ type UseEndingAudioOptions = {
 };
 
 export function useEndingAudio({ enabled = true, volume = 0.8 }: UseEndingAudioOptions = {}) {
-  const waveRef = useRef<HTMLAudioElement | null>(null);
-  const openRef = useRef<HTMLAudioElement | null>(null);
   const voiceRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") return;
 
-    waveRef.current = new Audio(ASSET_MANIFEST.audio.sfxEndingWave);
-    openRef.current = new Audio(ASSET_MANIFEST.audio.sfxCollectLetter);
-    voiceRef.current = new Audio();
+    // 结局让位给海浪与客家话朗读：停掉生成式 BGM。
+    stopBgm();
 
-    for (const audio of [waveRef.current, openRef.current, voiceRef.current]) {
-      audio.volume = volume;
-      audio.preload = "auto";
-    }
+    voiceRef.current = new Audio();
+    voiceRef.current.volume = volume;
+    voiceRef.current.preload = "auto";
 
     return () => {
-      for (const audio of [waveRef.current, openRef.current, voiceRef.current]) {
-        audio?.pause();
-      }
+      voiceRef.current?.pause();
     };
   }, [enabled, volume]);
 
-  const playSafe = useCallback((audio: HTMLAudioElement | null) => {
-    if (!audio) return;
-    audio.currentTime = 0;
-    void audio.play().catch(() => {
-      /* 素材缺失或浏览器策略阻止时静默降级 */
-    });
+  const playStorm = useCallback(() => {
+    // 海浪：低通长噪声铺底（程序化合成，无需文件）。
+    playWaveSfx();
   }, []);
 
-  const playStorm = useCallback(() => {
-    playSafe(waveRef.current);
-  }, [playSafe]);
-
   const playOpen = useCallback(() => {
-    playSafe(openRef.current);
-  }, [playSafe]);
+    playCollectLetterSfx();
+  }, []);
 
   const playVoice = useCallback(
     (letter: ArchivalLetter) => {
       if (!voiceRef.current || !letter.voiceAudio) return;
       voiceRef.current.src = letter.voiceAudio;
-      playSafe(voiceRef.current);
+      voiceRef.current.currentTime = 0;
+      void voiceRef.current.play().catch(() => {
+        /* 语音素材缺失时静默降级 */
+      });
     },
-    [playSafe],
+    [],
   );
 
   const stopAll = useCallback(() => {
-    for (const audio of [waveRef.current, openRef.current, voiceRef.current]) {
-      audio?.pause();
-    }
+    voiceRef.current?.pause();
   }, []);
 
   return { playStorm, playOpen, playVoice, stopAll };

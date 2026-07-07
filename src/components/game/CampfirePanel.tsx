@@ -16,6 +16,7 @@ import {
 } from "@/data/campfire";
 import { currentJourneyNode } from "@/engine";
 import { useGameStore } from "@/store/gameStore";
+import { playCampfireChoiceSfx } from "@/lib/audio/sfx";
 import { cn } from "@/lib/utils";
 import { GameIcon } from "@/components/game/ui";
 
@@ -116,6 +117,7 @@ function CampfireCinematic({
   }, [aftermath, dispatch]);
 
   const confirmChoice = (choice: CampfireChoice) => {
+    playCampfireChoiceSfx();
     setAftermath({
       choice,
       goldBefore: state.gold,

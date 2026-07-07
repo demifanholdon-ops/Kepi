@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { setBgmVolume } from "@/lib/audio/bgm";
+import { setMasterVolume } from "@/lib/audio/context";
 import { loadSettings, saveSettings } from "@/lib/storage/settings";
 import type { Settings } from "@/lib/schemas/settings";
 import { useGameStore } from "@/store/gameStore";
@@ -33,7 +33,7 @@ export function SettingsMenu() {
     setSettings(next);
     saveSettings(next);
     if (patch.volume !== undefined) {
-      setBgmVolume(patch.volume * 0.55);
+      setMasterVolume(patch.volume);
     }
   };
 

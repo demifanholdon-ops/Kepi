@@ -1,6 +1,7 @@
 import type { HomeRepairMilestone } from "@/types";
 import type { PrepFxKind } from "@/store/fxStore";
-import { ASSET_MANIFEST } from "@/data/assets";
+import { playRepairHomeSfx, playTulouShieldSfx, playTulouCheatDeathSfx } from "@/lib/audio/sfx";
+import { triggerMotif } from "@/lib/audio/bgm";
 
 export function prepFxKindForMilestone(
   milestone: HomeRepairMilestone,
@@ -19,14 +20,14 @@ export function milestoneLabel(milestone: HomeRepairMilestone): string {
 export function playTulouMilestoneSfx(milestone: HomeRepairMilestone): void {
   if (typeof window === "undefined") return;
 
-  const src =
-    milestone === 33
-      ? ASSET_MANIFEST.audio.sfxWellWater
-      : milestone === 66
-        ? ASSET_MANIFEST.audio.sfxWallRepair
-        : ASSET_MANIFEST.audio.sfxLanternGlow;
+  if (milestone === 33) {
+    playRepairHomeSfx();
+  } else if (milestone === 66) {
+    playTulouShieldSfx();
+  } else {
+    playTulouCheatDeathSfx();
+  }
 
-  const audio = new Audio(src);
-  audio.volume = milestone === 99 ? 0.58 : 0.68;
-  void audio.play().catch(() => undefined);
+  // 奏响主题 B「家·土楼」高光：tier 越高，高光越完整。
+  window.setTimeout(() => triggerMotif("home"), 220);
 }

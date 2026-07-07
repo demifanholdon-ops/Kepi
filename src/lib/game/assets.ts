@@ -40,6 +40,8 @@ export const PIECE_VISUALS: Record<PieceType, UnitVisualMeta> = {
     color: "#4a6fa5",
     portrait: ASSET_MANIFEST.characters.farmer.star1,
     placeholder: "/images/characters/farmer.svg",
+    // 立绘内容左偏（alpha 中心 ≈0.375），按实测透明像素边界居中。
+    visibleBounds: { left: 0.0967, right: 0.6533, bottom: 1 },
   },
   guard: {
     label: "守卫",
@@ -54,6 +56,8 @@ export const PIECE_VISUALS: Record<PieceType, UnitVisualMeta> = {
     color: "#5c7a99",
     portrait: ASSET_MANIFEST.characters.teacher.star1,
     placeholder: "/images/characters/teacher.svg",
+    // 立绘内容右偏（alpha 中心 ≈0.647），按实测透明像素边界居中。
+    visibleBounds: { left: 0.4248, right: 0.8682, bottom: 1 },
   },
   fengshui: {
     label: "风水先生",
@@ -61,6 +65,8 @@ export const PIECE_VISUALS: Record<PieceType, UnitVisualMeta> = {
     color: "#2f4858",
     portrait: ASSET_MANIFEST.characters.fengshui.star1,
     placeholder: "/images/characters/fengshui.svg",
+    // 立绘内容左偏（alpha 中心 ≈0.357），按实测透明像素边界居中。
+    visibleBounds: { left: 0.0967, right: 0.6182, bottom: 1 },
   },
   patriarch: {
     label: "族长",

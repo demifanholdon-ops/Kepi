@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
-import { ASSET_MANIFEST } from "@/data/assets";
 import { spawnEnemiesForStage } from "@/engine/battle";
 import {
   playTulouBattleStartSfx,
@@ -10,6 +9,16 @@ import {
   playWaterGuestDeathSfx,
   playWaterGuestHeartbeatSfx,
 } from "@/lib/audio/battleSfx";
+import {
+  playHitSfx,
+  playEnemyAttackSfx,
+  playSkillSfx,
+  playLeafFallSfx,
+  playWinSfx,
+  playLoseSfx,
+  playCollectLetterSfx,
+  playRepairHomeSfx,
+} from "@/lib/audio/sfx";
 import {
   ENEMY_VISUALS,
   homeRepairThemeStage,
@@ -77,6 +86,8 @@ export function useGameCanvas(
   const lastTulouStartTierRef = useRef<number | null>(null);
   const waterGuestDeathFlashAtRef = useRef<number | null>(null);
   const lastWaterGuestCrisisRef = useRef<0 | 1 | 2>(0);
+  const lastLeafFallSfxAtRef = useRef(0);
+  const lastResultSfxRef = useRef("");
   const hoveredTargetRef = useRef<{ side: "ally" | "enemy"; unitId: string } | null>(
     null,
   );
@@ -160,29 +171,45 @@ export function useGameCanvas(
       );
 
       const shuikeId = snapshot.battle?.waterGuest.pieceId;
-      if (shuikeId) {
-        for (let i = lastEventCountRef.current; i < events.length; i += 1) {
-          const event = events[i];
-          if (event?.type === "kill" && event.unitId === shuikeId) {
-            waterGuestDeathFlashAtRef.current = now;
-            playWaterGuestDeathSfx();
+      const enemies = snapshot.battle?.enemies ?? [];
+      for (let i = lastEventCountRef.current; i < events.length; i += 1) {
+        const event = events[i];
+        if (!event) continue;
+
+        if (event.type === "attack") {
+          // sourceId 为敌方 → 播放该敌人专属攻击音色；否则通用受击音
+          const attacker = enemies.find((e) => e.id === event.sourceId);
+          if (attacker) {
+            playEnemyAttackSfx(attacker.type, event.damage);
+          } else {
+            playHitSfx(event.damage);
           }
-          if (
-            event?.type === "skill" &&
-            event.skillId === "tulou_cheat_death"
-          ) {
-            playTulouCheatDeathSfx();
+        } else if (event.type === "leafFallStart") {
+          if (now - lastLeafFallSfxAtRef.current > 600) {
+            lastLeafFallSfxAtRef.current = now;
+            playLeafFallSfx();
           }
+        } else if (
+          event.type === "skill" &&
+          event.skillId !== "tulou_cheat_death"
+        ) {
+          playSkillSfx();
         }
-      } else {
-        for (let i = lastEventCountRef.current; i < events.length; i += 1) {
-          const event = events[i];
-          if (
-            event?.type === "skill" &&
-            event.skillId === "tulou_cheat_death"
-          ) {
-            playTulouCheatDeathSfx();
-          }
+
+        if (
+          event.type === "skill" &&
+          event.skillId === "tulou_cheat_death"
+        ) {
+          playTulouCheatDeathSfx();
+        }
+
+        if (
+          shuikeId &&
+          event.type === "kill" &&
+          event.unitId === shuikeId
+        ) {
+          waterGuestDeathFlashAtRef.current = now;
+          playWaterGuestDeathSfx();
         }
       }
 
@@ -192,18 +219,23 @@ export function useGameCanvas(
 
   useEffect(() => {
     const settlement = snapshot.settlement;
-    const won =
-      snapshot.phase === "settlement" && (snapshot.lastBattleResult?.won ?? false);
+    const result = snapshot.lastBattleResult;
+    const isSettlement = snapshot.phase === "settlement";
+    const won = isSettlement && (result?.won ?? false);
+
+    if (isSettlement && result) {
+      const resultKey = `${snapshot.state.stage}:${result.won}`;
+      if (resultKey !== lastResultSfxRef.current) {
+        lastResultSfxRef.current = resultKey;
+        if (won) playWinSfx();
+        else playLoseSfx();
+      }
+    }
+
     if (won && settlement && snapshotKebi > lastKebiFxRef.current) {
-      const collect = new Audio(ASSET_MANIFEST.audio.sfxCollectLetter);
-      collect.volume = 0.72;
-      void collect.play().catch(() => undefined);
+      playCollectLetterSfx();
       if (settlement.homeRepairGained > 0) {
-        window.setTimeout(() => {
-          const repair = new Audio(ASSET_MANIFEST.audio.sfxRepairHome);
-          repair.volume = 0.64;
-          void repair.play().catch(() => undefined);
-        }, 650);
+        window.setTimeout(() => playRepairHomeSfx(), 650);
       }
     }
     lastKebiFxRef.current = snapshotKebi;

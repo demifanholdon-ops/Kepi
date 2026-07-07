@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { loadSnapshot, hasSavedSnapshot } from "@/lib/storage/snapshot";
-import { initBgm } from "@/lib/audio/bgm";
+import { initBgm, setBgmScene, type BgmSceneId } from "@/lib/audio/bgm";
+import { ensureGestureResume, setMasterVolume } from "@/lib/audio/context";
 import { loadSettings } from "@/lib/storage/settings";
 import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
@@ -47,7 +48,9 @@ export function GameShell() {
 
   useEffect(() => {
     const settings = loadSettings();
-    initBgm(settings.volume * 0.55);
+    setMasterVolume(settings.volume);
+    ensureGestureResume();
+    initBgm();
 
     if (!hasSavedSnapshot()) return;
 
@@ -63,6 +66,12 @@ export function GameShell() {
   useEffect(() => {
     setDomPieceInspect(null);
   }, [phase, setDomPieceInspect]);
+
+  // 按剧情 phase 切换生成式 BGM 场景（见 docs/kepi_audio-design_v1.md §4.2）
+  useEffect(() => {
+    const scene = phaseToBgmScene(phase);
+    setBgmScene(scene);
+  }, [phase]);
 
   useEffect(() => {
     if (phase !== "prep" || !isPrepInteractive(prepSubview)) return;
@@ -137,4 +146,23 @@ export function GameShell() {
       <GameDialogs />
     </>
   );
+}
+
+/** 把游戏 phase 映射到 BGM 场景（docs/kepi_audio-design_v1.md §4.2）。 */
+function phaseToBgmScene(phase: string): BgmSceneId {
+  switch (phase) {
+    case "battle":
+      return "battle";
+    case "campfire":
+      return "campfire";
+    case "pawn_shop":
+      return "pawn_shop";
+    case "ending":
+      return "ending";
+    case "settings":
+      return "menu";
+    default:
+      // prep / opening_buff / settlement → 路线推进/备战
+      return "route";
+  }
 }

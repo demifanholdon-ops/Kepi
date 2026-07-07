@@ -6,6 +6,7 @@ import { ASSET_MANIFEST } from "@/data/assets";
 import { BALANCE } from "@/data/balance";
 import { OPENING_BUFF_TIMEOUT_WEAK } from "@/data/battleBuffs";
 import { openingBuffIcon } from "@/lib/game/battleBuffUi";
+import { playOpeningBuffSfx } from "@/lib/audio/sfx";
 import { useGameStore } from "@/store/gameStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
@@ -65,6 +66,7 @@ function OpeningBuffSession({
     if (dismissed) return;
     setDismissed(true);
     setFlash("catch");
+    playOpeningBuffSfx();
     window.setTimeout(() => {
       dispatch({ type: "CATCH_OPENING_BUFF" });
       pushToast(`抓住乡音符：${offered.label}`, "success");

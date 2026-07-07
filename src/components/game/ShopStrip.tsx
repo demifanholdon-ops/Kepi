@@ -14,6 +14,13 @@ import {
   playPawnGoldSfx,
   playPawnStampSfx,
 } from "@/lib/audio/battleSfx";
+import {
+  playBuySfx,
+  playRefreshSfx,
+  playPopulationSfx,
+  playStarUpSfx,
+  playSellSfx,
+} from "@/lib/audio/sfx";
 import { useGameStore } from "@/store/gameStore";
 import { shopSlotAnchor, useFxStore } from "@/store/fxStore";
 import { useUIStore } from "@/store/uiStore";
@@ -66,13 +73,27 @@ export function ShopPanel({
   const buy = (pieceType: PieceType) => {
     setDomPieceInspect(null);
     const slotIndex = shop.slots.indexOf(pieceType);
+    const beforeMaxStar = useGameStore
+      .getState()
+      .snapshot.board.filter((p) => p.type === pieceType)
+      .reduce((max, p) => Math.max(max, p.star), 0);
     if (buyFromShop(pieceType)) {
+      const afterMaxStar = useGameStore
+        .getState()
+        .snapshot.board.filter((p) => p.type === pieceType)
+        .reduce((max, p) => Math.max(max, p.star), 0);
       const anchor = shopSlotAnchor(slotIndex >= 0 ? slotIndex : 0);
       pushPrepFx({
         kind: "buy_piece",
         ...anchor,
         durationMs: 750,
       });
+      if (afterMaxStar > beforeMaxStar) {
+        playStarUpSfx();
+        pushPrepFx({ kind: "star_up", ...anchor, durationMs: 900 });
+      } else {
+        playBuySfx();
+      }
       pushToast(`购入 ${PIECE_VISUALS[pieceType].label}`, "success");
       return;
     }
@@ -85,6 +106,7 @@ export function ShopPanel({
     const goldAfter = useGameStore.getState().snapshot.state.gold;
     if (goldAfter >= goldBefore) return;
 
+    playRefreshSfx();
     pushPrepFx({
       kind: "shop_refresh",
       xRatio: 0.5,
@@ -104,6 +126,7 @@ export function ShopPanel({
       pushToast("无法升人口", "error");
       return;
     }
+    playPopulationSfx();
     pushPrepFx({
       kind: "population_up",
       xRatio: 0.5,
@@ -416,7 +439,10 @@ export function BenchStrip() {
               className="kepi-bench-float-sell px-2.5 py-1 text-[0.65rem]"
               onClick={() => {
                 setDomPieceInspect(null);
-                if (sellSelected()) pushToast("已卖出棋子", "default");
+                if (sellSelected()) {
+                  playSellSfx();
+                  pushToast("已卖出棋子", "default");
+                }
               }}
             >
               卖出
