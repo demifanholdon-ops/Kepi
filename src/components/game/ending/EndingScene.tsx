@@ -6,6 +6,7 @@ import {
   ENDING_SCENE_COPY,
   endingLetterCount,
   endingSubtitle,
+  pickDigitalLetterFallback,
   type EndingNarrativeContext,
 } from "@/data/letters";
 import { ASSET_MANIFEST } from "@/data/assets";
@@ -84,7 +85,16 @@ export function EndingScene({
         `归途终局 · 客批 ${narrative.kebi}/${narrative.kebiThreshold}`,
       result: aiResult,
     }),
-    [stage, narrative, battleSummary, aiResult, endingType],
+    // Use primitives to avoid re-running on every render (narrative is a new object each time)
+    [
+      stage,
+      narrative.kebi,
+      narrative.kebiThreshold,
+      narrative.homeRepairTier,
+      battleSummary,
+      aiResult,
+      endingType,
+    ],
   );
 
   const { playStorm, playOpen, playVoice, stopAll } = useEndingAudio({
@@ -113,6 +123,29 @@ export function EndingScene({
       cancelled = true;
     };
   }, [aiInput]);
+
+  // Ensure the digital narrative has exactly `kebi` paragraphs:
+  // trim down if too many, pad from fallback if too few
+  const digitalScrollBody = useMemo(() => {
+    if (!digitalNarrative) return "";
+    const kebi = Math.max(1, narrative.kebi);
+    const paragraphs = digitalNarrative.body
+      .split("\n\n")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (paragraphs.length >= kebi) {
+      return paragraphs.slice(0, kebi).join("\n\n");
+    }
+    // Pad with fallback paragraphs (avoiding duplicates)
+    const fallback = pickDigitalLetterFallback(aiInput.stage + aiInput.kebi);
+    const fallbackParas = fallback.body
+      .split("\n\n")
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .filter((p) => !paragraphs.includes(p));
+    const padding = fallbackParas.slice(0, kebi - paragraphs.length);
+    return [...paragraphs, ...padding].join("\n\n");
+  }, [digitalNarrative, narrative.kebi, aiInput.stage, aiInput.kebi]);
 
   const handleCatch = useCallback(() => {
     setCaughtCount((prev) => {
@@ -297,7 +330,7 @@ export function EndingScene({
             ) : digitalNarrative ? (
               <DigitalLetterScroll
                 title={digitalNarrative.title}
-                narrative={digitalNarrative.body}
+                narrative={digitalScrollBody}
               />
             ) : null}
 

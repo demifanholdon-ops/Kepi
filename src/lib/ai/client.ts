@@ -13,6 +13,12 @@ import type {
 import { pickFallbackLetter } from "./fallback";
 import { AI_REQUEST_TIMEOUT_MS } from "./types";
 
+function trimNarrativeToKebi(body: string, kebi: number): string {
+  const count = Math.max(1, kebi);
+  const paragraphs = body.split("\n\n").filter(Boolean);
+  return paragraphs.slice(0, count).join("\n\n");
+}
+
 export async function requestDigitalLetter(
   input: AIPromptInput,
 ): Promise<DigitalLetterResult> {
@@ -28,7 +34,13 @@ export async function requestDigitalLetter(
 
     const data = (await response.json()) as AIResponse;
     if (data.ok && "title" in data.data) {
-      return { letter: data.data, fromAI: true };
+      return {
+        letter: {
+          ...data.data,
+          body: trimNarrativeToKebi(data.data.body, input.kebi),
+        },
+        fromAI: true,
+      };
     }
     if (!data.ok && "title" in data.fallback) {
       return { letter: data.fallback, fromAI: false };

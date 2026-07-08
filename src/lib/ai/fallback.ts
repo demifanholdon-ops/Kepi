@@ -14,9 +14,14 @@ export function pickFallbackLetter(input: AIPromptInput): AILetterResponse {
   const index = hashSeed(input) % DIGITAL_LETTER_FALLBACKS.length;
   const letter = DIGITAL_LETTER_FALLBACKS[index]!;
 
+  // Trim paragraphs to match actual kebi count
+  const kebi = Math.max(1, input.kebi);
+  const paragraphs = letter.body.split("\n\n");
+  const trimmedBody = paragraphs.slice(0, kebi).join("\n\n");
+
   return {
     title: letter.title,
-    body: letter.body,
+    body: trimmedBody,
     source: "番客自叙",
   };
 }
